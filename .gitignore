@@ -1,0 +1,19 @@
+# Kho ma CONG KHAI: chi dua ma nguon va tai lieu chung.
+# Mac dinh bo qua TAT CA, roi liet ke tung loai file duoc phep (whitelist),
+# de file hop dong, ho so, co so du lieu khong bao gio bi day len do so suat.
+/*
+!/.gitignore
+!/README.md
+!/*.py
+!/*.bat
+!/quy-trinh-review-ttkl.md
+!/cau_lenh_local_ai_trich_hop_dong.md
+!/app_kiem_tra_ho_so/
+/app_kiem_tra_ho_so/*
+!/app_kiem_tra_ho_so/*.py
+!/app_kiem_tra_ho_so/*.bat
+!/app_kiem_tra_ho_so/*.sh
+!/app_kiem_tra_ho_so/requirements.txt
+!/app_kiem_tra_ho_so/danh_muc_tai_lieu.csv
+!/app_kiem_tra_ho_so/HUONG_DAN.md
+__pycache__/

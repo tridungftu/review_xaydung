@@ -1,0 +1,29 @@
+﻿ma,nhom,ten,bat_buoc,uu_tien,tu_khoa,muc_dich,mat_xich
+A01,A. Hợp đồng,"Hợp đồng kèm điều kiện chung, điều kiện riêng",1,1,hop dong|hdxd|hdepc|dieu kien chung|dieu kien rieng|contract,Nhóm 6: tham số thanh toán; nguồn tạo master,"Master: Thong tin HD, Dieu khoan TT"
+A02,A. Hợp đồng,Bảng chi tiết giá trị hợp đồng (BOQ),1,1,boq|bang chi tiet gia tri|bang gia|don gia hop dong|bang khoi luong hop dong|bieu gia,"Nhóm 1-2: KL HĐ, đơn giá",Master: BOQ
+A03,A. Hợp đồng,Phụ lục hợp đồng,0,1,phu luc|plhd,"Nhóm 1-2: thay đổi KL, đơn giá, giá trị","Master: Phu luc, BOQ"
+A04,A. Hợp đồng,"Văn bản chấp thuận thay đổi, phát sinh",0,2,chap thuan|phat sinh|thay doi|de xuat thay doi,"Căn cứ hạng mục ngoài BOQ, KL vượt HĐ",Đối chiếu: Hang muc
+A05,A. Hợp đồng,"Hồ sơ dự thầu / báo giá, biên bản thương thảo",0,3,du thau|bao gia|thuong thao|hsdt,Nguồn gốc đơn giá,
+A06,A. Hợp đồng,"Bảo lãnh (tạm ứng, thực hiện hợp đồng, bảo hành)",0,2,bao lanh,"Điều kiện tạm ứng, quyết toán","Dieu khoan TT: TT-12, TT-31, TT-33"
+A07,A. Hợp đồng,Tiến độ thi công được duyệt,0,2,tien do,"Căn cứ tạm giữ, phạt tiến độ",Dieu khoan TT: TT-50..55
+B01,B. Thiết kế,Bản vẽ thi công được duyệt,1,1,ban ve|bvtc|thiet ke|dwg,Nhóm 5: kiểm tra KL kỳ này,
+B02,B. Thiết kế,Bảng tính khối lượng thiết kế,0,2,khoi luong thiet ke|thong ke khoi luong|bang tinh kl|tong hop kl,"Nhóm 1, 5",
+B03,B. Thiết kế,Bản vẽ hoàn công,0,2,hoan cong|as-built|bvhc,Nhóm 5: KL thực tế,
+B04,B. Thiết kế,"Hồ sơ thay đổi thiết kế, biên bản xử lý hiện trường",0,2,thay doi thiet ke|xu ly ky thuat|hien truong,"KL vượt HĐ, phát sinh",
+C01,C. Nghiệm thu,Biên bản nghiệm thu khối lượng hoàn thành đợt,1,1,nghiem thu khoi luong|bb nghiem thu|bien ban nghiem thu|nghiem thu hoan thanh,Nhóm 5: KL kỳ này,Hồ sơ TT: sheet biên bản nghiệm thu
+C02,C. Nghiệm thu,Biên bản xác nhận khối lượng và giá trị hoàn thành đợt,1,1,xac nhan khoi luong|xac nhan gia tri|gia tri hoan thanh,Nhóm 5 và GT kỳ này,Hồ sơ TT: bảng xác định giá trị
+C03,C. Nghiệm thu,"Biên bản nghiệm thu công việc, vật liệu đầu vào",0,2,nghiem thu cong viec|nghiem thu vat lieu|nghiem thu vat tu,Nhóm 5,
+C04,C. Nghiệm thu,Nhật ký thi công,0,2,nhat ky,Đúng kỳ,
+C05,C. Nghiệm thu,"Kết quả thí nghiệm, biên bản lấy mẫu",0,3,thi nghiem|lay mau,Điều kiện chất lượng,
+C06,C. Nghiệm thu,Hình ảnh hiện trường có ngày chụp,0,3,hinh anh|anh hien truong|photo,Hiện hữu,
+D01,"D. Vật tư, thiết bị","Biên bản giao nhận vật tư, thiết bị",0,2,giao nhan|ban giao thiet bi|nhan hang,Nhóm 5 (nếu HĐ có vật tư thiết bị),
+D02,"D. Vật tư, thiết bị","CO, CQ, packing list",0,2,\bco\b|\bcq\b|c/o|c/q|chung nhan|packing,"Xuất xứ, chất lượng đúng HĐ",
+D03,"D. Vật tư, thiết bị","Biên bản lắp đặt, chạy thử",0,3,lap dat|chay thu,Điều kiện thanh toán thiết bị,
+E01,E. Thanh toán,Hồ sơ thanh toán đợt trước đã duyệt (bản ký + Excel),1,1,dot truoc|da duyet|ho so thanh toan dot|hstt dot,"Nhóm 3, 4, 7: kỳ trước, lũy kế, đã thanh toán","Master: KL ky truoc, Lich su TT"
+E02,E. Thanh toán,Ủy nhiệm chi / sổ phụ ngân hàng,1,1,uy nhiem chi|unc|so phu|sao ke|giay bao no,Nhóm 7: số thực chi,Master: Lich su TT
+E03,E. Thanh toán,Hóa đơn GTGT,1,2,hoa don|invoice|gtgt,"Thuế suất, giá trị hóa đơn",
+E04,E. Thanh toán,Công văn / giấy đề nghị thanh toán đợt này,1,1,de nghi thanh toan|giay dntt|cong van,Số đề nghị,
+E05,E. Thanh toán,File Excel hồ sơ thanh toán đợt này,1,1,hstt|ttkl|ho so thanh toan|thanh toan dot,Đối tượng review,Đối chiếu với master
+E06,E. Thanh toán,Biên bản đối chiếu công nợ,0,3,doi chieu cong no|cong no,Nhóm 7,
+F01,F. Khác,"Biên bản vi phạm chất lượng, tiến độ",0,2,vi pham|phat|tam giu,Căn cứ khấu trừ,Dieu khoan TT: TT-51..55
+F02,F. Khác,Căn cứ thuế suất GTGT,0,3,thue suat|giam thue,Nhóm 6: VAT,Dieu khoan TT: TT-04

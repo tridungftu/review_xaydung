@@ -1,0 +1,9 @@
+streamlit>=1.50
+pandas
+openpyxl
+pdfplumber
+python-docx
+pypdfium2
+# Tuỳ chọn cho PDF scan / ảnh (cần cài thêm Tesseract + gói ngôn ngữ vie trên máy):
+# pytesseract
+# pillow

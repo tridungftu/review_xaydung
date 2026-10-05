@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cổng hồ sơ thanh toán – bản mẫu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F5F2;--bg-nk:#EEF0EC;--card:#FFFFFF;--line:#DCDFD8;--line2:#ECEEE9;--soft:#FAFAF8;--soft2:#F1F2EF;
+  --ink:#1A1D21;--ink2:#3A4048;--mute:#5A6068;--btnline:#C9CDC5;--field:#9AA0A8;
+  --acc:#1D4E89;--acc-d:#123660;--acc-bg:#E2EAF5;--dark:#1A1D21;
+  --ok:#0B5E33;--ok-bg:#E3F1E8;--warn:#7A4100;--warn-bg:#FBEBD0;--err:#9B1C14;--err-bg:#FADFDB;--err-row:#FFF8F7;--warn-row:#FFFAF0;--mute-bg:#ECEEE9;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 'Be Vietnam Pro','Segoe UI',system-ui,-apple-system,sans-serif}
+body.nk{background:var(--bg-nk)}
+a{color:var(--acc)}a:hover{color:var(--acc-d)}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{margin:0;line-height:1.3}
+h1{font-size:24px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:17px;font-weight:700}
+h3{font-size:14px;font-weight:700}
+p{margin:0}
+.sub{font-size:12px;color:var(--mute)}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.r{text-align:right}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+/* thanh vai */
+.vai{background:#2B2F35;color:#E8EAE6;font-size:13px}
+.vai .in{max-width:1400px;margin:0 auto;padding:6px 24px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;background:#3A3F46;border-radius:8px;padding:3px;gap:3px}
+.seg button{min-height:36px;padding:0 14px;border:0;border-radius:6px;background:transparent;color:#E8EAE6;cursor:pointer;font-weight:500}
+.seg button[aria-pressed="true"]{background:#FFFFFF;color:var(--ink);font-weight:700}
+
+/* đầu trang */
+.top{background:var(--card);border-bottom:1px solid var(--line)}
+.top.dark{background:var(--dark);color:#F4F5F2;border-bottom:0}
+.top .in{max-width:1400px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:10px 28px;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:12px;align-items:center}
+.mark{width:36px;height:36px;border-radius:8px;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+.nav{display:flex;flex-wrap:wrap;gap:4px}
+.nav button{min-height:44px;padding:0 14px;border:0;border-radius:8px;background:transparent;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.nav button[aria-current="page"]{background:var(--acc-bg);color:var(--acc);font-weight:600}
+.top.dark .nav button{color:#F4F5F2}
+.top.dark .nav button[aria-current="page"]{background:#FFFFFF;color:var(--ink)}
+.dot{width:8px;height:8px;border-radius:50%;background:#5BC98A;display:inline-block}
+.stt{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:13px}
+.top.dark .sub{color:#B9BEC4}
+
+/* bố cục */
+.wrap{max-width:1400px;margin:0 auto;padding:24px;display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.side{flex:1 1 260px;display:flex;flex-direction:column;gap:12px}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column;gap:20px}
+.rail{flex:1 1 340px;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:16px}
+.card.tight{padding:16px 20px;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.row.start{align-items:flex-start}
+.stack{display:flex;flex-direction:column;gap:6px}
+.meta{display:flex;flex-wrap:wrap;gap:4px 18px;color:var(--ink2)}
+
+/* nút */
+.btn{min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--btnline);background:#FFFFFF;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:#8A9099}
+.btn.sm{min-height:36px;padding:0 12px;font-weight:500}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#FFFFFF}
+.btn.pri:hover{background:var(--acc-d)}
+.btn.dark{background:var(--dark);border-color:var(--dark);color:#FFFFFF}
+.btn.out{border-color:var(--acc);color:var(--acc)}
+.btn.danger{color:var(--err)}
+.btn:disabled{background:#E3E6E0;border-color:#E3E6E0;color:#4A5058;cursor:not-allowed}
+.top.dark .btn{background:transparent;color:#F4F5F2;border-color:#4A5058}
+.link{background:none;border:0;padding:0;color:var(--acc);text-decoration:underline;cursor:pointer;font:inherit}
+.link.danger{color:var(--err)}
+
+/* nhãn trạng thái */
+.b{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.ok{background:var(--ok-bg);color:var(--ok)}.warn{background:var(--warn-bg);color:var(--warn)}.err{background:var(--err-bg);color:var(--err)}
+.info{background:var(--acc-bg);color:var(--acc)}.mute{background:var(--mute-bg);color:#454B52}
+
+/* danh sách hồ sơ */
+.qh{font-size:12px;font-weight:700;color:var(--ink2);letter-spacing:.03em;text-transform:uppercase;margin-top:6px}
+.hs{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border-radius:10px;background:var(--card);border:1px solid var(--line);text-align:left;cursor:pointer;width:100%}
+.hs[aria-current="true"]{border:2px solid var(--acc)}
+.nk .hs[aria-current="true"]{border-color:var(--dark)}
+.hs .t{font-weight:600}
+
+/* bước */
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.steps li{padding:10px 12px;border-radius:8px;background:var(--soft2);color:var(--ink2);display:flex;flex-direction:column;gap:2px}
+.steps li.done{background:var(--ok-bg);color:var(--ok)}
+.steps li.cur{background:var(--acc);color:#FFFFFF}
+.steps .s{font-size:12px}
+.steps .n{font-weight:600}
+
+/* ô số */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tile{padding:14px;border-radius:10px;background:var(--soft);border:1px solid var(--line2);display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile .v{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+
+/* bảng */
+.tbox{overflow-x:auto;border:1px solid var(--line2);border-radius:10px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+.t th{text-align:left;font-weight:600;font-size:12px;color:var(--ink2);padding:10px 12px;border-bottom:1px solid var(--line);background:var(--soft);white-space:nowrap}
+.t td{padding:11px 12px;border-bottom:1px solid var(--line2);vertical-align:top}
+.t tr:last-child td{border-bottom:0}
+.t tr.e td{background:var(--err-row)}
+.t tr.w td{background:var(--warn-row)}
+.fl{display:flex;flex-direction:column;gap:6px}
+.fi{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+.note{margin-top:4px;font-size:13px}
+
+/* nhóm danh mục */
+.grp{display:flex;flex-direction:column;gap:8px}
+.gh{display:flex;flex-wrap:wrap;gap:8px 12px;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;background:var(--soft);border:1px solid var(--line2)}
+.gh button{background:none;border:0;padding:6px 0;font-weight:700;cursor:pointer;display:inline-flex;gap:8px;align-items:center;text-align:left}
+
+/* vùng thả file */
+.drop{border:2px dashed #9AA6B6;border-radius:12px;padding:26px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:center;background:#F7F9FC;text-align:center}
+.drop.on{background:var(--acc-bg);border-color:var(--acc)}
+
+/* thẻ tab */
+.tabs{display:flex;flex-wrap:wrap;gap:4px;padding:8px 12px;border-bottom:1px solid var(--line)}
+.tabs button{min-height:44px;padding:0 14px;border:0;border-radius:8px;background:transparent;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--dark);color:#FFFFFF;font-weight:600}
+
+.lop{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.lop>div{padding:16px;border-radius:10px;border:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.bar{height:8px;border-radius:999px;background:var(--line2);overflow:hidden}.bar>div{height:8px;background:var(--acc)}
+
+/* phiếu */
+.item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.item.open{border-color:var(--dark)}
+.no{flex:none;width:30px;height:30px;border-radius:50%;background:var(--dark);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:700}
+.no.lt{background:var(--mute-bg);color:var(--ink)}
+textarea,input[type=text],input[type=date],select{border:1px solid var(--field);border-radius:8px;background:#FFFFFF}
+textarea{width:100%;padding:12px 14px;resize:vertical;line-height:1.6}
+input[type=date],select{min-height:44px;padding:0 10px}
+textarea.int{border-style:dashed;background:var(--soft)}
+input[type=checkbox],input[type=radio]{width:20px;height:20px;accent-color:var(--dark)}
+.quote{padding:12px 14px;border-radius:10px;background:var(--soft2);line-height:1.6;white-space:pre-wrap}
+.chk{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.chk li{display:flex;gap:10px;align-items:flex-start}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.opt.sel{border:2px solid var(--dark)}
+.kv{display:grid;grid-template-columns:minmax(140px,210px) minmax(0,1fr);gap:6px 16px;margin:0;padding:14px;border-radius:10px;background:var(--soft);border:1px solid var(--line2)}
+.kv dt{color:var(--mute)}.kv dd{margin:0}
+.banner{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--soft2);color:var(--ink2)}
+.banner.warn{background:var(--warn-bg);color:var(--warn)}
+.banner.info{background:var(--acc-bg);color:var(--acc)}
+.empty{padding:40px 20px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center;color:var(--ink2)}
+.tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.tl li{display:grid;grid-template-columns:90px minmax(0,1fr);gap:10px}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--dark);color:#FFFFFF;padding:12px 18px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.18);max-width:min(560px,calc(100vw - 32px));z-index:10;display:none}
+.toast.on{display:block}
+
+/* biên bản in */
+.bb{background:#FFFFFF;border:1px solid var(--line);border-radius:12px;padding:40px;max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:14px;font-size:14px}
+.bb table{width:100%;border-collapse:collapse}.bb td,.bb th{border:1px solid #9AA0A8;padding:6px 8px;text-align:left;vertical-align:top}
+
+@media (max-width:760px){
+  .wrap{padding:16px;gap:16px}
+  .vai .in,.top .in{padding:8px 16px}
+  .card{padding:16px}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tiles,.lop{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kv{grid-template-columns:minmax(0,1fr)}
+  .kv dd{margin-bottom:6px}
+}
+@media print{
+  .no-print{display:none!important}
+  body{background:#FFFFFF}
+  .bb{border:0;padding:0;max-width:none}
+}
+</style>
+</head>
+<body>
+<div id="vai" class="vai no-print"></div>
+<div id="app"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =====================================================================
+   BẢN MẪU GIAO DIỆN – chạy hoàn toàn trên trình duyệt.
+   Không lưu dữ liệu, không gửi file đi đâu. Khi làm thật (giai đoạn 1),
+   phần S (trạng thái) sẽ do máy chủ trên máy người ký cung cấp.
+   ===================================================================== */
+
+// ---------- tiện ích ----------
+const pad = n => String(n).padStart(2, '0');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const tien = n => n == null ? 'chưa xác định' : n.toLocaleString('vi-VN') + ' đ';
+const boDau = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+const bayGio = () => { const d = new Date(); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const coKB = b => b < 1024 * 1024 ? Math.max(1, Math.round(b / 1024)) + ' KB' : (b / 1024 / 1024).toFixed(1).replace('.', ',') + ' MB';
+const IC = {
+  up: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>',
+  lock: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  ok: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B5E33" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px"><path d="M20 6 9 17l-5-5"/></svg>',
+  warn: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7A4100" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>',
+  file: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;align-self:center"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+  chev: o => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:rotate(${o ? 90 : 0}deg)"><path d="m9 18 6-6-6-6"/></svg>`,
+};
+
+// ---------- danh mục hồ sơ (theo danh_muc_tai_lieu.csv) ----------
+// [mã, nhóm, tên, bắt buộc, từ khoá nhận diện tên file]
+const DM = [
+  ['A01','A','Hợp đồng kèm điều kiện chung, điều kiện riêng',1,'hop dong|hdxd|hdepc|dieu kien chung|dieu kien rieng|contract'],
+  ['A02','A','Bảng chi tiết giá trị hợp đồng (BOQ)',1,'boq|bang chi tiet gia tri|bang gia|don gia hop dong|bang khoi luong hop dong|bieu gia'],
+  ['A03','A','Phụ lục hợp đồng',0,'phu luc|plhd|\\bpl\\d'],
+  ['A04','A','Văn bản chấp thuận thay đổi, phát sinh',0,'chap thuan|phat sinh|de xuat thay doi'],
+  ['A05','A','Hồ sơ dự thầu / báo giá, biên bản thương thảo',0,'du thau|bao gia|thuong thao|hsdt'],
+  ['A06','A','Bảo lãnh (tạm ứng, thực hiện HĐ, bảo hành)',0,'bao lanh'],
+  ['A07','A','Tiến độ thi công được duyệt',0,'tien do'],
+  ['B01','B','Bản vẽ thi công được duyệt',1,'ban ve|bvtc|thiet ke|dwg'],
+  ['B02','B','Bảng tính khối lượng thiết kế',0,'khoi luong thiet ke|kl thiet ke|thong ke khoi luong|bang tinh kl|tong hop kl'],
+  ['B03','B','Bản vẽ hoàn công',0,'hoan cong|as built|bvhc'],
+  ['B04','B','Hồ sơ thay đổi thiết kế, biên bản xử lý hiện trường',0,'thay doi thiet ke|xu ly ky thuat|hien truong'],
+  ['C01','C','Biên bản nghiệm thu khối lượng hoàn thành đợt',1,'nghiem thu khoi luong|bb nghiem thu|bien ban nghiem thu|nghiem thu hoan thanh|bbnt'],
+  ['C02','C','Biên bản xác nhận khối lượng và giá trị hoàn thành đợt',1,'xac nhan khoi luong|xac nhan gia tri|gia tri hoan thanh|xac nhan kl|bb xac nhan'],
+  ['C03','C','Biên bản nghiệm thu công việc, vật liệu đầu vào',0,'nghiem thu cong viec|nghiem thu vat lieu|nghiem thu vat tu|bbnt cong viec'],
+  ['C04','C','Nhật ký thi công',0,'nhat ky'],
+  ['C05','C','Kết quả thí nghiệm, biên bản lấy mẫu',0,'thi nghiem|lay mau'],
+  ['C06','C','Hình ảnh hiện trường có ngày chụp',0,'hinh anh|anh hien truong|photo|\\bimg'],
+  ['D01','D','Biên bản giao nhận vật tư, thiết bị',0,'giao nhan|ban giao thiet bi|nhan hang'],
+  ['D02','D','CO, CQ, packing list',0,'\\bco\\b|\\bcq\\b|chung nhan|packing'],
+  ['D03','D','Biên bản lắp đặt, chạy thử',0,'lap dat|chay thu'],
+  ['E01','E','Hồ sơ thanh toán đợt trước đã duyệt',1,'dot truoc|da duyet'],
+  ['E02','E','Ủy nhiệm chi / sổ phụ ngân hàng',1,'uy nhiem chi|\\bunc\\b|so phu|sao ke|giay bao no'],
+  ['E03','E','Hóa đơn GTGT',1,'hoa don|invoice|gtgt'],
+  ['E04','E','Công văn / giấy đề nghị thanh toán đợt này',1,'de nghi thanh toan|giay dntt|cong van|\\bcv\\b'],
+  ['E05','E','File Excel hồ sơ thanh toán đợt này',1,'hstt|ttkl|ho so thanh toan|thanh toan dot'],
+  ['E06','E','Biên bản đối chiếu công nợ',0,'doi chieu cong no|cong no'],
+  ['F01','F','Biên bản vi phạm chất lượng, tiến độ',0,'vi pham|phat|tam giu'],
+  ['F02','F','Căn cứ thuế suất GTGT',0,'thue suat|giam thue'],
+].map(([ma, nhom, ten, bb, tk]) => ({ma, nhom, ten, bb: !!bb, tk: tk.split('|'), apDung: nhom !== 'D'}));
+const NHOM = {A:'A. Hợp đồng', B:'B. Thiết kế', C:'C. Nghiệm thu', D:'D. Vật tư, thiết bị', E:'E. Thanh toán', F:'F. Khác'};
+const dm = ma => DM.find(d => d.ma === ma);
+
+// nhận diện mục theo tên file: chọn từ khoá khớp dài nhất
+function xepMuc(ten) {
+  const s = ' ' + boDau(ten).replace(/[_\-.()\[\]]+/g, ' ') + ' ';
+  const ext = ten.split('.').pop().toLowerCase();
+  let best = null, dai = 0;
+  for (const d of DM) {
+    if (!d.apDung) continue;
+    for (const k of d.tk) {
+      let m; try { m = new RegExp(k).exec(s); } catch (e) { m = null; }
+      if (m && m[0].length > dai) { best = d.ma; dai = m[0].length; }
+    }
+  }
+  if (!best && ['jpg','jpeg','png','heic'].includes(ext)) best = 'C06';
+  if (!best && ['dwg','dxf'].includes(ext)) best = 'B01';
+  return best;
+}
+
+// kiểm tra hình thức sơ bộ (bản thật: máy chủ còn kiểm tra đọc được / scan / lỗi Excel)
+const DUOI = ['pdf','xlsx','xlsm','xls','docx','doc','dwg','dxf','jpg','jpeg','png','heic','zip','rar'];
+function kiemFile(f) {
+  const ext = f.name.includes('.') ? f.name.split('.').pop().toLowerCase() : '';
+  if (!DUOI.includes(ext)) return ['err', `Định dạng “.${ext || '?'}” không nhận. Nhận PDF, Excel, Word, DWG/DXF, ảnh, ZIP.`];
+  if (f.size === 0) return ['err', 'File rỗng (0 byte).'];
+  if (f.size > 300 * 1024 * 1024) return ['warn', 'File lớn hơn 300 MB.'];
+  if (ext === 'doc' || ext === 'xls') return ['warn', `Định dạng cũ (.${ext}) – máy sẽ tự chuyển để đọc.`];
+  return ['ok', 'Đã nhận. Máy kiểm tra tiếp: đọc được không, bản scan, lỗi file Excel.'];
+}
+
+// ---------- phát hiện của máy (Lớp 1–3) ----------
+// goc: các dữ kiện gốc (số liệu từ file/CSDL). Mọi con số trong câu chữ gửi đi phải có ở đây.
+const PH = [
+  {ma:'L2-01', lop:2, muc:'Cao', chon:true, yc:'Giải trình', ah:350101892,
+   tieu:'KL lũy kế HM0006 vượt KL hợp đồng hiệu lực 3,588 (100m3)',
+   tieuPda:'Khối lượng lũy kế vượt khối lượng hợp đồng – Móng cấp phối đá dăm lớp dưới',
+   vt:'“3. KL”!M27 · BOQ hiệu lực HM0006',
+   goc:'HM0006 KL HĐ hiệu lực 27,462 (100m3); lũy kế đề nghị 31,050; ngày nghiệm thu 28/09/2026; vượt 3,588; đơn giá 97.575.778; 350.101.892',
+   nhap:'Khối lượng lũy kế đề nghị đến đợt này của hạng mục HM0006 là 31,050 (100m3), vượt khối lượng hợp đồng có hiệu lực tại ngày nghiệm thu 28/09/2026 là 27,462. Phần vượt 3,588 × 97.575.778 đ = 350.101.892 đ. Đề nghị cung cấp phụ lục tăng khối lượng đã ký, hoặc điều chỉnh khối lượng lũy kế về tối đa 27,462.'},
+  {ma:'L1-K8', lop:1, muc:'Cao', chon:true, yc:'Bổ sung tài liệu', ah:1084250000,
+   tieu:'20 dòng KL kỳ này nhập tay, không nối với biên bản nghiệm thu hay bảng tính KL',
+   tieuPda:'Khối lượng kỳ này của 20 hạng mục được gõ tay, không lấy từ biên bản nghiệm thu',
+   vt:'“3. KL”!L14:L52',
+   goc:'HSTT_dot3.xlsx sheet 3. KL cột L, 20 dòng, 1.084.250.000',
+   nhap:'Trong file HSTT_dot3.xlsx, sheet “3. KL”, cột L có 20 dòng khối lượng kỳ này là số nhập trực tiếp, không liên kết tới biên bản nghiệm thu hay bảng tính khối lượng. Giá trị 20 dòng này là 1.084.250.000 đ. Đề nghị gửi bảng tính khối lượng hoặc biên bản nghiệm thu chi tiết cho 20 hạng mục này.'},
+  {ma:'L1-K1', lop:1, muc:'Cao', chon:true, yc:'Sửa hồ sơ', ah:null,
+   tieu:'108 công thức lấy số từ file của một hợp đồng khác (nằm trong cây truy vết của ô tổng)',
+   tieuPda:'Bảng tổng hợp lấy số từ file của một hợp đồng khác',
+   vt:'“BTH”!O12:O119 → file ngoài [1]',
+   goc:'sheet BTH cột O, 108 công thức',
+   nhap:'Bảng tổng hợp (sheet “BTH”, cột O, 108 công thức) đang lấy số từ một file Excel của hợp đồng khác. Đề nghị sửa để bảng tổng hợp chỉ lấy số từ các sheet của hồ sơ này và gửi lại file.'},
+  {ma:'L2-02', lop:2, muc:'Cao', chon:true, yc:'Giải trình', ah:10000000,
+   tieu:'Hạng mục “Cọc tiêu bổ sung” không có trong BOQ hiệu lực',
+   vt:'“3. KL” dòng 61',
+   goc:'20 cái × 500.000 = 10.000.000; sheet 3. KL dòng 61; ngày nghiệm thu 28/09/2026',
+   nhap:'Hạng mục “Cọc tiêu bổ sung” (20 cái × 500.000 đ = 10.000.000 đ, sheet “3. KL” dòng 61) không có trong BOQ hợp đồng hiệu lực tại ngày nghiệm thu 28/09/2026. Đề nghị cung cấp văn bản chấp thuận phát sinh hoặc phụ lục đã ký.'},
+  {ma:'L2-03', lop:2, muc:'Trung bình', chon:true, yc:'Sửa hồ sơ', ah:30680000,
+   tieu:'Đơn giá HM0031 cao hơn đơn giá hợp đồng 2,1% (HĐ đơn giá cố định)',
+   tieuPda:'Đơn giá thanh toán HM0031 cao hơn đơn giá hợp đồng',
+   vt:'“3. KL”!H44 · BOQ HM0031',
+   goc:'HM0031 đơn giá HSTT 1.276.000, đơn giá HĐ 1.250.000, chênh 2,1%, KL 1.180, 30.680.000',
+   nhap:'Đơn giá thanh toán hạng mục HM0031 là 1.276.000 đ/m, cao hơn đơn giá hợp đồng 1.250.000 đ/m (2,1%), trong khi hợp đồng là đơn giá cố định. Ảnh hưởng 30.680.000 đ. Đề nghị sửa đơn giá về đúng hợp đồng.'},
+  {ma:'L3-01', lop:3, muc:'Cao', chon:false, yc:'Giải trình', ah:88200000, ocr:true, xacNhan:false,
+   tieu:'KL kỳ này HM0012: hồ sơ 1.250 m, biên bản nghiệm thu 1.180 m',
+   tieuPda:'Khối lượng kỳ này HM0012 khác biên bản nghiệm thu',
+   vt:'BBNT_dot3_scan.pdf trang 3 · “3. KL”!L33',
+   goc:'HM0012 HSTT 1.250 m; BBNT trang 3: 1.180 m; chênh 70 m; 88.200.000',
+   nhap:'Khối lượng kỳ này của hạng mục HM0012 trên hồ sơ là 1.250 m, trên biên bản nghiệm thu (trang 3) là 1.180 m, chênh 70 m, ảnh hưởng 88.200.000 đ. Đề nghị giải trình và điều chỉnh theo biên bản nghiệm thu.'},
+  {ma:'L1-K2', lop:1, muc:'Trung bình', chon:false, yc:'Sửa hồ sơ', ah:null,
+   tieu:'3 ô lệch mẫu công thức so với cả cột', vt:'“BBNT”!H48:H51',
+   goc:'BBNT H48 H49 H51, 3 ô',
+   nhap:'Ba ô H48, H49, H51 ở sheet “BBNT” có công thức khác với các ô còn lại trong cột. Đề nghị kiểm tra và sửa cho thống nhất.'},
+  {ma:'L1-K4', lop:1, muc:'Trung bình', chon:false, yc:'Giải trình', ah:null,
+   tieu:'Sheet ẩn “DG cu” được 247 ô tham chiếu; khác bản đang hiện ở 1 ô', vt:'“DG cu” (ẩn)',
+   goc:'DG cu 247 ô, khác 1 ô',
+   nhap:'Có 247 ô lấy số từ sheet ẩn “DG cu”; sheet này khác bản đang hiện ở 1 ô. Đề nghị giải trình vì sao dùng sheet ẩn.'},
+  {ma:'L1-K5', lop:1, muc:'Thấp', chon:false, yc:'Sửa hồ sơ', ah:null,
+   tieu:'17 ô số lưu dạng chữ, không được cộng vào tổng', vt:'“3. KL” cột J',
+   goc:'17 ô, sheet 3. KL cột J',
+   nhap:'17 ô ở sheet “3. KL” cột J là số nhưng lưu dạng chữ nên không được cộng vào tổng. Đề nghị sửa lại định dạng số.'},
+];
+PH.forEach(p => { p.nd = p.nhap; p.gc = ''; });
+const ph = ma => PH.find(p => p.ma === ma);
+const lopTen = {1:'Toàn vẹn file', 2:'Đối chiếu HĐ, phụ lục, BOQ', 3:'Chứng từ'};
+const mucB = m => m === 'Cao' ? 'err' : m === 'Trung bình' ? 'warn' : 'mute';
+
+// ---------- kiểm số: mọi con số trong câu chữ phải có trong dữ kiện gốc ----------
+const SO = /\d[\d.,/]*\d|\d/g;
+const soTrong = s => (String(s).match(SO) || []).map(x => x.replace(/[.,/]+$/, ''));
+function kiemSo(p) {
+  const goc = new Set([...soTrong(p.goc), ...soTrong(p.tieu), ...soTrong(p.vt), ...soTrong(p.ma)]);
+  const tat = soTrong(p.nd);
+  const la = [...new Set(tat.filter(x => !goc.has(x)))];
+  return {tong: tat.length, la};
+}
+
+// ---------- trạng thái ----------
+const DE_NGHI = 4215380000;
+let seq = 1;
+const fileMau = (ma, ten, size, kq, note, nguon = 'nop') => ({id: seq++, ma, ten, size, kq, note, nguon, luc: '29/09 14:05'});
+const S = {
+  vai: 'pda', pdaTab: 'nop', nkTab: 'kq', loc: 0, xemTruoc: false, bienBan: false,
+  trangThai: 'dang_nop',      // dang_nop → cho_kiem_tra → da_phat_hanh → du_dieu_kien
+  moNhom: {A:false, B:true, C:true, D:false, E:true, F:false},
+  vuaTai: [],
+  files: [
+    fileMau('A01','HD_15-2026-HDTC_ky.pdf',4.1e6,'ok','','dot_truoc'),
+    fileMau('A02','BOQ_HD15.xlsx',820e3,'ok','','dot_truoc'),
+    fileMau('A03','PL01_ky.pdf',1.2e6,'ok','','dot_truoc'),
+    fileMau('A03','PL02_ky.pdf',1.6e6,'ok','','dot_truoc'),
+    fileMau('A04','CV_chap_thuan_phat_sinh_01.pdf',310e3,'ok','','dot_truoc'),
+    fileMau('A05','BB_thuong_thao.pdf',900e3,'ok','','dot_truoc'),
+    fileMau('A06','Bao_lanh_THHD.pdf',260e3,'ok','','dot_truoc'),
+    fileMau('A07','Tien_do_duyet.pdf',1.1e6,'ok','','dot_truoc'),
+    fileMau('E01','HSTT_dot2_da_duyet.xlsx',1.4e6,'ok','Đợt 2, duyệt 15/08/2026','dot_truoc'),
+    fileMau('B01','XL03_BVTC_rev2.dwg',2.4e6,'ok','DWG mở được.'),
+    fileMau('B01','XL03_BVTC_rev2.pdf',9.8e6,'ok','PDF có nét vector, khổ A1, 18 trang.'),
+    fileMau('B02','KL_thiet_ke_XL03.xlsx',540e3,'ok',''),
+    fileMau('C01','BBNT_dot3_scan.pdf',6.3e6,'err','Trang 4–5 mờ, không đọc được số liệu và chữ ký. Đề nghị scan lại từ 300 dpi.'),
+    fileMau('C03','BBNT_cong_viec_01-12.pdf',3.2e6,'ok','12 biên bản.'),
+    fileMau('C04','Nhat_ky_thang9.pdf',2.2e6,'ok','Phông chữ cũ (TCVN3) – máy đã tự chuyển để đọc.'),
+    fileMau('C06','Anh_hien_truong_T9.zip',48e6,'warn','24 ảnh; 2 ảnh không có ngày chụp (IMG_2040, IMG_2047).'),
+    fileMau('E02','UNC_dot2.pdf',180e3,'ok',''),
+    fileMau('E04','CV_de_nghi_TT_dot3.pdf',240e3,'ok',''),
+    fileMau('E05','HSTT_dot3.xlsx',2.9e6,'warn','Có công thức lấy số từ một file khác không gửi kèm; 3 ô báo lỗi #REF!. Đề nghị gửi kèm file nguồn hoặc bản đã sửa.'),
+  ],
+  nhap: {han: '2026-10-06', hienTien: true, ketLuan: 'chua_du'},
+  dangSoan: true,
+  phieu: [],                  // các phiếu đã phát hành (bản chụp, không sửa được)
+  nhapGT: {},                 // giải trình đang gõ dở phía phòng dự án
+  log: [
+    {t:'29/09 14:05', pda:true, nd:'Tạo đợt thanh toán 3; nộp 11 file'},
+    {t:'29/09 14:06', pda:true, nd:'Kiểm tra hình thức: thiếu C02, E03; file C01 không đọc được'},
+    {t:'29/09 14:30', pda:false, nd:'Máy chạy Lớp 1 (24 giây), Lớp 2; Lớp 3 đang đọc chứng từ'},
+  ],
+};
+const ghi = (nd, pda = true) => S.log.push({t: bayGio(), pda, nd});
+
+// ---------- tính toán dùng chung ----------
+function ttMuc(d) {
+  if (!d.apDung) return ['mute', 'Không áp dụng'];
+  const fs = S.files.filter(f => f.ma === d.ma);
+  if (!fs.length) return d.bb ? ['err', 'Thiếu'] : ['mute', 'Chưa nộp'];
+  if (fs.some(f => f.kq === 'err')) return ['err', 'Có file lỗi'];
+  if (fs.some(f => f.kq === 'warn')) return ['warn', 'Cảnh báo'];
+  if (fs.every(f => f.nguon === 'dot_truoc')) return ['ok', 'Dùng lại'];
+  return ['ok', 'Đạt'];
+}
+function tongHop() {
+  const bb = DM.filter(d => d.bb && d.apDung);
+  const coBB = bb.filter(d => S.files.some(f => f.ma === d.ma && f.kq !== 'err'));
+  const thieu = bb.filter(d => !S.files.some(f => f.ma === d.ma)).map(d => d.ma);
+  const loi = S.files.filter(f => f.kq === 'err' && f.ma);
+  const chuaXep = S.files.filter(f => !f.ma);
+  const canhBao = S.files.filter(f => f.kq === 'warn');
+  const dat = S.files.filter(f => f.kq === 'ok' && f.nguon === 'nop');
+  return {bb, coBB, thieu, loi, chuaXep, canhBao, dat, guiDuoc: !thieu.length && !loi.length && !chuaXep.length};
+}
+const phieuMoi = () => S.phieu[S.phieu.length - 1];
+const chuaGT = () => { const p = phieuMoi(); return p && S.trangThai === 'da_phat_hanh' ? p.items.filter(i => !i.gt).length : 0; };
+const dangChon = () => PH.filter(p => p.chon);
+const tongAH = arr => arr.reduce((s, p) => s + (p.ah || 0), 0);
+const soPhieu = () => `PH-03/${pad(S.phieu.length + 1)}`;
+const TT_PDA = {
+  dang_nop: ['info', 'Đang nộp hồ sơ'], cho_kiem_tra: ['mute', 'Chờ người ký kiểm tra'],
+  da_phat_hanh: ['warn', 'Cần giải trình'], du_dieu_kien: ['ok', 'Đủ điều kiện ký'],
+};
+const BUOC = {dang_nop: 0, cho_kiem_tra: 2, da_phat_hanh: 3, du_dieu_kien: 4};
+
+// ---------- thông báo ngắn ----------
+let tHen;
+function bao(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(tHen); tHen = setTimeout(() => t.classList.remove('on'), 3600);
+}
+
+// =====================================================================
+// GIAO DIỆN PHÒNG DỰ ÁN
+// =====================================================================
+function vPdaTop() {
+  const n = chuaGT();
+  return `<header class="top"><div class="in">
+    <div class="brand"><div class="mark" aria-hidden="true">TT</div>
+      <div class="stack" style="gap:0"><strong style="font-size:16px">Cổng hồ sơ thanh toán</strong><span class="sub">Nộp hồ sơ cho người ký – mạng nội bộ văn phòng</span></div></div>
+    <nav class="nav" aria-label="Điều hướng chính">
+      <button data-act="pdaTab" data-v="nop" ${S.pdaTab === 'nop' ? 'aria-current="page"' : ''}>Hồ sơ của tôi</button>
+      <button data-act="pdaTab" data-v="phanhoi" ${S.pdaTab === 'phanhoi' ? 'aria-current="page"' : ''}>Phản hồi cần giải trình ${n ? `<span class="b warn">${n}</span>` : ''}</button>
+    </nav>
+    <div class="row" style="gap:12px"><div class="stack r" style="gap:0"><strong>Nguyễn Văn A</strong><span class="sub">Phòng Dự án</span></div>
+      <button class="btn" data-act="bao" data-v="Bản mẫu: chưa có đăng nhập.">Đăng xuất</button></div>
+  </div></header>`;
+}
+
+function vPdaSide() {
+  const [c, t] = TT_PDA[S.trangThai];
+  const hs = (ten, phu, nhan, cur) => `<button class="hs" ${cur ? 'aria-current="true"' : ''} data-act="${cur ? 'pdaTab' : 'bao'}" data-v="${cur ? 'nop' : 'Bản mẫu: chỉ đợt 3 của HĐ 15/2026 bấm vào được.'}">
+      <span class="t">${ten}</span><span class="sub">${phu}</span><span>${nhan}</span></button>`;
+  return `<aside class="side"><div class="row"><h3>Hồ sơ đang xử lý</h3><span class="sub">4 đợt</span></div>
+    ${hs('HĐ 15/2026/HĐTC · Đợt 3', 'Thi công gói XL-03', `<span class="b ${c}">${t}</span>`, true)}
+    ${hs('HĐ 09/2026/HĐTB · Đợt 1', 'Cung cấp thiết bị trạm bơm', '<span class="b warn">Cần giải trình</span> <span class="sub">hạn 06/10</span>')}
+    ${hs('HĐ 21/2026/HĐTV · Đợt 4', 'Tư vấn giám sát', '<span class="b mute">Chờ người ký kiểm tra</span>')}
+    ${hs('HĐ 15/2026/HĐTC · Đợt 2', 'Thi công gói XL-03', '<span class="b ok">Đủ điều kiện ký</span>')}
+    <button class="btn" style="border-style:dashed" data-act="bao" data-v="Bản mẫu: tạo đợt mới sẽ có ở bản chạy thật.">+ Tạo đợt thanh toán mới</button>
+  </aside>`;
+}
+
+function vBuoc() {
+  const k = BUOC[S.trangThai];
+  const ds = [['Bước 1', 'Nộp hồ sơ'], ['Bước 2 · tự động', 'Kiểm tra hình thức'], ['Bước 3 · người ký', 'Kiểm tra số liệu'], ['Bước 4', 'Phản hồi, giải trình'], ['Bước 5', 'Đủ điều kiện ký']];
+  return `<ol class="steps">${ds.map(([s, n], i) => {
+    const cls = i < k || (S.trangThai === 'du_dieu_kien') ? 'done' : i === k ? 'cur' : '';
+    return `<li class="${cls}" ${i === k ? 'aria-current="step"' : ''}><span class="s">${s}</span><span class="n">${n}</span></li>`;
+  }).join('')}</ol>`;
+}
+
+function vNop() {
+  const th = tongHop();
+  const [c, t] = TT_PDA[S.trangThai];
+  const daGui = S.trangThai !== 'dang_nop';
+  return `
+  <div class="card">
+    <div class="sub">Hồ sơ của tôi / HĐ 15/2026/HĐTC / Đợt 3</div>
+    <div class="row start">
+      <div class="stack"><h1>Đợt thanh toán 3 – Thi công gói XL-03</h1>
+        <div class="meta"><span>Nhà thầu: [TÊN NHÀ THẦU]</span><span>Ngày nghiệm thu: <strong>28/09/2026</strong></span><span>Người nhận: Giám đốc Tài chính</span></div></div>
+      <span class="b ${c}" style="font-size:13px;padding:6px 12px">${t}</span>
+    </div>
+    ${vBuoc()}
+    <div class="tiles">
+      <div class="tile"><span class="sub">Mục bắt buộc đã có</span><span class="v">${th.coBB.length}/${th.bb.length}</span></div>
+      <div class="tile"><span class="sub">File mới đạt kiểm tra</span><span class="v" style="color:var(--ok)">${th.dat.length}</span></div>
+      <div class="tile"><span class="sub">File cần xử lý</span><span class="v" style="color:${th.loi.length ? 'var(--err)' : 'var(--ink)'}">${th.loi.length} lỗi · ${th.canhBao.length} cảnh báo</span></div>
+      <div class="tile"><span class="sub">Mục bắt buộc còn thiếu</span><span class="v" style="color:${th.thieu.length ? 'var(--err)' : 'var(--ok)'}">${th.thieu.length ? th.thieu.join(', ') : 'Không'}</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="drop" id="drop">
+      <span style="color:var(--acc)">${IC.up}</span>
+      <div class="stack" style="align-items:center;gap:2px"><strong style="font-size:16px">Kéo thả các file vào đây – máy tự xếp vào đúng mục</strong>
+        <span class="sub">PDF, Excel, Word, DWG/DXF, ảnh, ZIP. Xem lại cột “Mục” ngay bên dưới sau khi tải lên.</span></div>
+      <label class="btn pri" style="position:relative">Chọn file<input class="sr" type="file" multiple data-chg="tai"></label>
+    </div>
+    ${S.vuaTai.length ? vVuaTai() : ''}
+  </div>
+
+  <div class="card">
+    <div class="row"><h2>Danh mục hồ sơ theo yêu cầu</h2>
+      <div class="row" style="gap:6px;justify-content:flex-start"><span class="b ok">Đạt</span><span class="b warn">Cảnh báo</span><span class="b err">Thiếu / lỗi</span><span class="b mute">Chưa nộp, không bắt buộc</span></div></div>
+    ${Object.keys(NHOM).map(vNhom).join('')}
+  </div>
+
+  <div class="card">
+    ${daGui ? `<div class="row"><div class="stack"><strong style="color:var(--ok)">Đã gửi hồ sơ cho người ký</strong>
+        <span>Vẫn nộp bổ sung được; mỗi lần nộp thêm đều ghi vào lịch sử.</span></div>
+        <button class="btn" data-act="pdaTab" data-v="phanhoi">Xem phản hồi</button></div>`
+    : `<div class="row"><div class="stack">${th.guiDuoc
+        ? `<strong style="color:var(--ok)">Đủ mục bắt buộc – gửi được</strong><span>${th.canhBao.length ? 'Còn ' + th.canhBao.length + ' cảnh báo; cảnh báo không chặn việc gửi.' : 'Không còn cảnh báo.'}</span>`
+        : `<strong style="color:var(--err)">Chưa gửi được</strong><span>${[th.thieu.length ? 'Còn thiếu ' + th.thieu.join(', ') : '', th.loi.length ? 'file ' + [...new Set(th.loi.map(f => f.ma))].join(', ') + ' không đọc được' : '', th.chuaXep.length ? th.chuaXep.length + ' file chưa xếp mục (chọn mục hoặc gỡ)' : ''].filter(Boolean).join('; ')}. Cảnh báo không chặn việc gửi.</span>`}</div>
+      <div class="row" style="gap:10px"><button class="btn" data-act="bao" data-v="Đã lưu nháp (bản mẫu).">Lưu nháp</button>
+        <button class="btn pri" data-act="gui" ${th.guiDuoc ? '' : 'disabled'}>Gửi hồ sơ để kiểm tra</button></div></div>`}
+    <div class="banner">${IC.lock}<span>Trang này chỉ hiện kết quả kiểm tra hình thức (thiếu mục, file không đọc được, lỗi file Excel). Kết quả kiểm tra số liệu chỉ hiện khi người ký phát hành phiếu phản hồi.</span></div>
+  </div>`;
+}
+
+function vVuaTai() {
+  const fs = S.vuaTai.map(id => S.files.find(f => f.id === id)).filter(Boolean);
+  if (!fs.length) return '';
+  return `<div class="stack" style="gap:8px"><div class="row"><h3>Vừa tải lên (${fs.length})</h3><button class="link" data-act="xoaVuaTai">Ẩn danh sách</button></div>
+  <div class="tbox"><table class="t" style="min-width:720px"><thead><tr><th>File</th><th>Máy xếp vào mục</th><th>Kiểm tra hình thức</th></tr></thead><tbody>
+  ${fs.map(f => `<tr class="${f.kq === 'err' ? 'e' : ''}"><td><div class="fi">${IC.file}<span>${esc(f.ten)}</span><span class="sub">${coKB(f.size)}</span></div></td>
+    <td><label class="sr" for="m${f.id}">Mục của ${esc(f.ten)}</label>
+      <select id="m${f.id}" data-chg="doiMuc" data-id="${f.id}" style="width:100%">
+        <option value="" ${f.ma ? '' : 'selected'}>— Máy chưa nhận ra, chọn mục —</option>
+        ${DM.filter(d => d.apDung).map(d => `<option value="${d.ma}" ${f.ma === d.ma ? 'selected' : ''}>${d.ma} – ${esc(d.ten)}</option>`).join('')}
+      </select>${f.ma ? '' : '<div class="note" style="color:var(--err)">Chọn mục để file được tính vào danh mục.</div>'}</td>
+    <td><div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:flex-start"><span class="b ${f.kq}">${f.kq === 'ok' ? 'Đạt' : f.kq === 'warn' ? 'Cảnh báo' : 'Lỗi'}</span>
+      <button class="link danger" data-act="xoaFile" data-id="${f.id}" aria-label="Gỡ ${esc(f.ten)}">Gỡ</button></div><div class="note">${esc(f.note)}</div></td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+
+function vNhom(g) {
+  const ds = DM.filter(d => d.nhom === g);
+  const mo = S.moNhom[g];
+  const apDung = ds.some(d => d.apDung);
+  const coFile = ds.filter(d => S.files.some(f => f.ma === d.ma)).length;
+  const loi = ds.some(d => ttMuc(d)[0] === 'err' && d.apDung);
+  const tom = !apDung ? '<span class="b mute">Không áp dụng cho hợp đồng này</span>'
+    : `<span class="b ${loi ? 'err' : coFile ? 'ok' : 'mute'}">${coFile}/${ds.length} mục có file</span>`;
+  const ghiChu = g === 'A' ? ' – dùng lại hồ sơ đã nộp ở đợt 1; chỉ nộp thêm khi có phụ lục mới' : g === 'D' ? ' – hợp đồng không có vật tư, thiết bị cung cấp riêng' : '';
+  return `<div class="grp">
+    <div class="gh"><button data-act="moNhom" data-v="${g}" aria-expanded="${mo}">${IC.chev(mo)}${NHOM[g]}<span class="sub" style="font-weight:400">${ghiChu}</span></button>${tom}</div>
+    ${mo ? `<div class="tbox"><table class="t" style="min-width:880px"><colgroup><col style="width:56px"><col style="width:24%"><col style="width:84px"><col style="width:25%"><col><col style="width:116px"></colgroup>
+      <thead><tr><th>Mã</th><th>Tài liệu</th><th>Bắt buộc</th><th>File đã nộp</th><th>Kiểm tra hình thức</th><th>Thao tác</th></tr></thead><tbody>
+      ${ds.map(vMuc).join('')}</tbody></table></div>` : ''}
+  </div>`;
+}
+
+function vMuc(d) {
+  const [c, t] = ttMuc(d);
+  const fs = S.files.filter(f => f.ma === d.ma);
+  const ghiChu = fs.filter(f => f.note && (f.kq !== 'ok' || !f.note.startsWith('Đã nhận')));
+  return `<tr class="${c === 'err' && d.apDung ? 'e' : ''}">
+    <td><strong>${d.ma}</strong></td><td>${esc(d.ten)}</td><td>${d.bb ? 'Có' : 'Không'}</td>
+    <td>${fs.length ? `<div class="fl">${fs.map(f => `<div class="fi">${IC.file}<span>${esc(f.ten)}</span><span class="sub">${f.nguon === 'dot_truoc' ? 'nộp đợt trước' : coKB(f.size)}</span>
+        ${f.nguon === 'nop' ? `<button class="link danger" data-act="xoaFile" data-id="${f.id}" aria-label="Gỡ ${esc(f.ten)}">Gỡ</button>` : ''}</div>`).join('')}</div>` : '<span class="sub">—</span>'}</td>
+    <td><span class="b ${c}">${t}</span>${ghiChu.map(f => `<div class="note">${fs.length > 1 ? '<strong>' + esc(f.ten) + ':</strong> ' : ''}${esc(f.note)}</div>`).join('')}
+      ${!fs.length && d.ma === 'B03' ? '<div class="note sub">Nên nộp: dùng để đối chiếu khối lượng thực tế.</div>' : ''}</td>
+    <td>${d.apDung ? `<label class="btn sm ${!fs.length || c === 'err' ? 'out' : ''}" style="position:relative">${fs.length ? (c === 'err' ? 'Thay file' : 'Thêm file') : 'Tải lên'}<input class="sr" type="file" multiple data-chg="taiMuc" data-ma="${d.ma}"></label>` : ''}</td>
+  </tr>`;
+}
+
+function vPhanHoi() {
+  const p = S.xemTruoc ? phieuNhap() : phieuMoi();
+  if (!p) return `<div class="card"><div class="empty">${IC.lock}<h2>Chưa có phiếu phản hồi</h2>
+      <p>${S.trangThai === 'dang_nop' ? 'Hồ sơ chưa gửi. Sau khi gửi, người ký kiểm tra số liệu và phát hành phiếu phản hồi tại đây.' : 'Người ký đang kiểm tra số liệu. Kết quả chỉ hiện khi người ký phát hành phiếu phản hồi.'}</p>
+      <button class="btn" data-act="pdaTab" data-v="nop">Về hồ sơ</button></div></div>`;
+  const xong = p.items.filter(i => i.gt).length;
+  const cho = tongAH(p.items);
+  const ketLuanDu = p.ketLuan === 'du';
+  return `
+  ${S.xemTruoc ? `<div class="banner info no-print" style="justify-content:space-between;flex-wrap:wrap"><span><strong>Bản xem trước.</strong> Phòng dự án chưa thấy phiếu này cho tới khi anh bấm Phát hành.</span>
+      <button class="btn" data-act="hetXemTruoc">Quay lại soạn phiếu</button></div>` : ''}
+  <div class="card">
+    <div class="sub">Hồ sơ của tôi / HĐ 15/2026/HĐTC / Đợt 3 / Phiếu phản hồi</div>
+    <div class="row start"><div class="stack"><h1>Phiếu phản hồi ${p.so} – Đợt thanh toán 3</h1>
+      <div class="meta"><span>${S.xemTruoc ? 'Chưa phát hành' : 'Phát hành ' + p.luc + ' bởi Giám đốc Tài chính'}</span><span>Hạn giải trình: <strong>${p.han.split('-').reverse().join('/')}</strong></span></div></div>
+      ${ketLuanDu ? '<span class="b ok" style="font-size:13px;padding:6px 12px">Đủ điều kiện ký</span>'
+        : `<span class="b ${xong === p.items.length ? 'ok' : 'warn'}" style="font-size:13px;padding:6px 12px">${xong === p.items.length ? 'Đã giải trình đủ' : 'Còn ' + (p.items.length - xong) + ' nội dung chưa giải trình'}</span>`}</div>
+    <div class="tiles">
+      <div class="tile"><span class="sub">Giá trị đề nghị kỳ này</span><span class="v">${tien(DE_NGHI)}</span></div>
+      ${p.hienTien ? `<div class="tile"><span class="sub">Đang chờ làm rõ</span><span class="v" style="color:var(--warn)">${tien(cho)}</span></div>` : '<div class="tile"><span class="sub">Kết luận</span><span class="v" style="font-size:16px">' + KL_TEN[p.ketLuan] + '</span></div>'}
+      <div class="tile"><span class="sub">Nội dung phản hồi</span><span class="v">${p.items.length}</span></div>
+      <div class="tile"><span class="sub">Đã giải trình</span><span class="v">${xong}/${p.items.length}</span></div>
+    </div>
+    ${ketLuanDu ? '<div class="banner info">Người ký kết luận hồ sơ đợt này đủ điều kiện ký.</div>' : ''}
+  </div>
+  ${p.items.map((it, i) => vItemPda(p, it, i)).join('')}
+  ${S.phieu.length > 1 && !S.xemTruoc ? `<div class="card tight"><h3>Phiếu trước</h3>${S.phieu.slice(0, -1).map(x => `<span>${x.so} · phát hành ${x.luc} · ${x.items.length} nội dung</span>`).join('')}</div>` : ''}`;
+}
+
+function vItemPda(p, it, i) {
+  const k = it.ma;
+  const nhap = S.nhapGT[k] || {nd: '', files: []};
+  const dangSua = nhap.sua;
+  const coGT = it.gt && !dangSua;
+  const khoa = S.xemTruoc || p.ketLuan === 'du';
+  return `<article class="item">
+    <div class="row start"><div class="row start" style="justify-content:flex-start;flex-wrap:nowrap"><span class="no">${i + 1}</span>
+      <div class="stack"><h2>${esc(it.tieu)}</h2><div class="row" style="justify-content:flex-start;gap:8px"><span class="b info">Cần ${it.yc.toLowerCase()}</span>
+        ${it.gt ? '<span class="b ok">Đã giải trình</span>' : '<span class="b warn">Chưa giải trình</span>'}
+        ${it.danhGia ? `<span class="b ${it.danhGia === 'chap_nhan' ? 'ok' : 'err'}">Người ký: ${it.danhGia === 'chap_nhan' ? 'chấp nhận' : 'chưa chấp nhận'}</span>` : ''}</div></div></div>
+      ${p.hienTien ? `<div class="stack r" style="gap:0"><span class="sub">Ảnh hưởng (chưa VAT)</span><strong class="num" style="font-size:16px">${tien(it.ah)}</strong></div>` : ''}</div>
+    <p style="line-height:1.65">${esc(it.nd)}</p>
+    <div class="sub">Căn cứ: ${esc(it.vt)}</div>
+    <div style="border-top:1px solid var(--line2);padding-top:14px" class="stack">
+    ${coGT ? `<div class="row"><strong>Giải trình của phòng dự án</strong><span class="sub">Gửi ${it.gt.luc} · Nguyễn Văn A</span></div>
+        <div class="quote">${esc(it.gt.nd)}</div>
+        <div class="row">${it.gt.files.length ? `<div class="row" style="justify-content:flex-start;gap:8px">${it.gt.files.map(n => `<span class="fi" style="padding:6px 10px;border:1px solid var(--line);border-radius:8px">${IC.file}${esc(n)}</span>`).join('')}</div>` : '<span class="sub">Không đính kèm tài liệu</span>'}
+          ${khoa ? '' : `<span class="row" style="gap:10px"><span class="b mute">${it.danhGia ? 'Người ký đã xem' : 'Chờ người ký xem'}</span><button class="btn" data-act="suaGT" data-ma="${k}">Sửa giải trình</button></span>`}</div>`
+      : khoa ? `<span class="sub">${S.xemTruoc ? 'Phòng dự án sẽ giải trình tại đây.' : 'Không cần giải trình thêm.'}</span>`
+      : `<label for="gt-${k}"><strong>Giải trình của phòng dự án</strong></label>
+        <textarea id="gt-${k}" rows="4" data-inp="gt" data-ma="${k}" placeholder="Nêu nguồn số liệu, hoặc ghi rõ tài liệu gửi kèm ứng với dòng nào…">${esc(nhap.nd)}</textarea>
+        <div class="row"><div class="row" style="justify-content:flex-start;gap:8px">
+            <label class="btn" style="position:relative">Đính kèm tài liệu bổ sung<input class="sr" type="file" multiple data-chg="dinhKem" data-ma="${k}"></label>
+            ${nhap.files.map(n => `<span class="fi" style="padding:6px 10px;border:1px solid var(--line);border-radius:8px">${IC.file}${esc(n)}</span>`).join('')}</div>
+          <button class="btn pri" data-act="guiGT" data-ma="${k}">Gửi giải trình nội dung ${i + 1}</button></div>`}
+    </div>
+  </article>`;
+}
+
+function vPdaLs() {
+  return `<div class="card"><h3>Lịch sử hồ sơ</h3><ol class="tl">${S.log.filter(l => l.pda).map(l => `<li><span class="sub">${l.t}</span><span>${esc(l.nd)}</span></li>`).join('')}</ol></div>
+  <div class="card"><h3>Cách giải trình</h3><ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px">
+    <li>Giải trình từng nội dung; có thể gửi nhiều lần trước hạn.</li>
+    <li>Tài liệu bổ sung gắn vào đúng nội dung, không cần nộp lại cả bộ hồ sơ.</li>
+    <li>Người ký xem xong sẽ phát hành kết luận: đủ điều kiện ký, chấp nhận một phần, hoặc phiếu phản hồi tiếp theo.</li></ul></div>`;
+}
+
+function vPda() {
+  document.body.classList.remove('nk');
+  const noi = S.pdaTab === 'nop'
+    ? `<div class="wrap">${vPdaSide()}<section class="main">${vNop()}</section></div>`
+    : `<div class="wrap"><section class="main">${vPhanHoi()}</section><aside class="rail">${vPdaLs()}</aside></div>`;
+  return vPdaTop() + `<main>${noi}</main>`;
+}
+
+// =====================================================================
+// BÀN LÀM VIỆC CỦA NGƯỜI KÝ
+// =====================================================================
+const KL_TEN = {chua_du: 'Chưa đủ điều kiện ký', mot_phan: 'Chấp nhận một phần', du: 'Đủ điều kiện ký'};
+
+function vNkTop() {
+  const p = phieuMoi();
+  const soGT = p ? p.items.filter(i => i.gt && !i.danhGia).length : 0;
+  const tab = (v, t) => `<button data-act="nkTab" data-v="${v}" ${S.nkTab === v ? 'aria-current="page"' : ''}>${t}</button>`;
+  return `<header class="top dark no-print"><div class="in">
+    <div class="stack" style="gap:0"><strong style="font-size:16px">Bàn làm việc – Kiểm tra hồ sơ thanh toán</strong><span class="sub">Chỉ mở trên máy này · Giám đốc Tài chính</span></div>
+    <nav class="nav" aria-label="Bàn làm việc">${tab('kq', 'Kết quả kiểm tra')}${tab('phieu', 'Phiếu phản hồi')}${tab('gt', 'Giải trình nhận được' + (soGT ? ` <span class="b warn">${soGT}</span>` : ''))}${tab('ls', 'Lịch sử')}</nav>
+    <div class="stt"><span class="row" style="gap:8px"><span class="dot"></span>Cổng mở · 192.168.1.20:8080</span><span class="row" style="gap:8px"><span class="dot"></span>AI cục bộ sẵn sàng</span></div>
+  </div></header>`;
+}
+
+function vNkSide() {
+  const [c, t] = {dang_nop: ['info', 'Phòng dự án đang nộp'], cho_kiem_tra: ['warn', 'Chờ anh kiểm tra số liệu'], da_phat_hanh: ['mute', 'Đã phát hành, chờ giải trình'], du_dieu_kien: ['ok', 'Đủ điều kiện ký']}[S.trangThai];
+  const hs = (ten, phu, cur) => `<button class="hs" ${cur ? 'aria-current="true"' : ''} data-act="${cur ? 'nkTab' : 'bao'}" data-v="${cur ? 'kq' : 'Bản mẫu: chỉ đợt 3 của HĐ 15/2026 bấm vào được.'}"><span class="t">${ten}</span><span class="sub">${phu}</span></button>`;
+  return `<aside class="side no-print">
+    <div class="qh">Đang chọn</div>${hs('HĐ 15/2026/HĐTC · Đợt 3', `<span class="b ${c}">${t}</span>`, true)}
+    <div class="qh">Chờ kiểm tra số liệu</div>${hs('HĐ 21/2026/HĐTV · Đợt 4', 'Đạt hình thức 03/10')}
+    <div class="qh">Chờ giải trình</div>${hs('HĐ 09/2026/HĐTB · Đợt 1', 'Hạn 06/10 · 1/4 đã giải trình')}
+    <div class="qh">Đủ điều kiện ký</div>${hs('HĐ 15/2026/HĐTC · Đợt 2', 'Biên bản đã xuất 15/08')}
+  </aside>`;
+}
+
+function vNkHead() {
+  return `<div class="card">
+    <div class="row start"><div class="stack"><h1>HĐ 15/2026/HĐTC · Đợt 3 – Thi công gói XL-03</h1>
+      <div class="meta"><span>Nhà thầu [TÊN NHÀ THẦU]</span><span>Ngày nghiệm thu <strong>28/09/2026</strong> – mốc áp dụng phụ lục</span></div></div>
+      <div class="row" style="gap:10px"><button class="btn" data-act="bao" data-v="Bản chạy thật sẽ mở thư mục hồ sơ của đợt này.">Mở thư mục hồ sơ</button>
+        <button class="btn" data-act="bao" data-v="Bản chạy thật sẽ chạy lại 3 lớp kiểm tra trên file mới nhất.">Chạy lại kiểm tra</button></div></div>
+    <div class="tiles">
+      <div class="tile"><span class="sub">GT hợp đồng hiệu lực tại 28/09</span><span class="v">18.734.600.000</span><span class="sub">Gốc + PL01 + PL02 (đã ký)</span></div>
+      <div class="tile"><span class="sub">Đề nghị kỳ này</span><span class="v">${DE_NGHI.toLocaleString('vi-VN')}</span><span class="sub">Ô “2. TH.”!D38</span></div>
+      <div class="tile"><span class="sub">Lũy kế sau kỳ này</span><span class="v">12.866.420.000</span><span class="sub">68,7% giá trị hợp đồng</span></div>
+      <div class="tile"><span class="sub">Còn lại của hợp đồng</span><span class="v">5.868.180.000</span><span class="sub">Phụ lục dự thảo không tính</span></div>
+    </div>
+    ${S.trangThai === 'dang_nop' ? `<div class="banner warn">${IC.warn}<span>Phòng dự án chưa gửi hồ sơ đợt này (còn thiếu mục bắt buộc). Kết quả dưới đây là lần chạy thử trên các file đã tải lên; chưa phát hành được.</span></div>` : ''}
+  </div>`;
+}
+
+function vKq() {
+  const dem = l => PH.filter(p => p.lop === l);
+  const tab = (v, t) => `<button role="tab" aria-selected="${S.loc === v}" data-act="loc" data-v="${v}">${t}</button>`;
+  const ds = S.loc ? PH.filter(p => p.lop === S.loc) : PH;
+  const chon = dangChon();
+  const mucs = l => ['Cao', 'Trung bình', 'Thấp'].map(m => [m, dem(l).filter(p => p.muc === m).length]).filter(x => x[1]).map(([m, n]) => `<span class="b ${mucB(m)}">${m} ${n}</span>`).join('');
+  return `${vNkHead()}
+  <div class="card" style="padding:0;gap:0">
+    <div class="tabs" role="tablist" aria-label="Lọc theo lớp">${tab(0, 'Tất cả (' + PH.length + ')')}${tab(1, 'Lớp 1 · Toàn vẹn file (' + dem(1).length + ')')}${tab(2, 'Lớp 2 · Đối chiếu HĐ (' + dem(2).length + ')')}${tab(3, 'Lớp 3 · Chứng từ (' + dem(3).length + ')')}</div>
+    <div style="padding:20px" class="lop">
+      <div><div class="row"><strong>Lớp 1 · Toàn vẹn file</strong><span class="b ok">Xong · 24 giây</span></div><span class="sub">HSTT_dot3.xlsx · 14 sheet · 3.912 công thức</span><div class="row" style="justify-content:flex-start;gap:6px">${mucs(1)}</div></div>
+      <div><div class="row"><strong>Lớp 2 · Đối chiếu HĐ</strong><span class="b ok">Xong</span></div><span class="sub">BOQ hiệu lực: gốc + PL01 + PL02</span><div class="row" style="justify-content:flex-start;gap:6px">${mucs(2)}</div></div>
+      <div><div class="row"><strong>Lớp 3 · Chứng từ</strong><span class="b info">Đang chạy · 5/7</span></div><div class="bar"><div style="width:71%"></div></div><div class="row" style="justify-content:flex-start;gap:6px">${mucs(3)}<span class="b mute">Bản vẽ đang tính</span></div></div>
+    </div>
+    <div style="padding:0 20px 20px" class="stack">
+      <div class="row"><h2>Phát hiện</h2><span class="sub">Đánh dấu phát hiện cần đưa vào phiếu phản hồi. Phần không đánh dấu chỉ lưu nội bộ.</span></div>
+      <div class="tbox"><table class="t" style="min-width:980px"><colgroup><col style="width:70px"><col style="width:70px"><col style="width:104px"><col><col style="width:140px"><col style="width:210px"></colgroup>
+        <thead><tr><th>Đưa vào phiếu</th><th>Mã</th><th>Mức</th><th>Phát hiện</th><th class="r">Ảnh hưởng (đ)</th><th>Vị trí / căn cứ</th></tr></thead><tbody>
+        ${ds.map(p => `<tr class="${p.ocr && !p.xacNhan ? 'w' : ''}">
+          <td><input type="checkbox" data-chg="chon" data-ma="${p.ma}" ${p.chon ? 'checked' : ''} ${p.ocr && !p.xacNhan ? 'disabled' : ''} aria-label="Đưa ${p.ma} vào phiếu"></td>
+          <td><strong>${p.ma}</strong></td><td><span class="b ${mucB(p.muc)}">${p.muc}</span></td>
+          <td>${esc(p.tieu)}${p.ocr ? (p.xacNhan ? '<div class="note"><span class="b ok">Đã xác nhận số OCR</span></div>'
+              : `<div class="note row" style="justify-content:flex-start;gap:8px"><span class="b warn">Số đọc bằng OCR · độ tin cậy 0,82</span><button class="btn sm" data-act="xacNhan" data-ma="${p.ma}">Đã xem trang 3 – xác nhận số</button></div>`) : ''}</td>
+          <td class="num r">${p.ah == null ? '—' : p.ah.toLocaleString('vi-VN')}</td><td>${esc(p.vt)}</td></tr>`).join('')}
+        <tr><td class="sub">—</td><td><strong>HT-01</strong></td><td><span class="b warn">Trung bình</span></td><td>File có liên kết ngoài, 3 ô lỗi #REF! <span class="b ok">Phòng dự án đã thấy lúc nộp</span></td><td class="num r">—</td><td>Kiểm tra hình thức</td></tr>
+        </tbody></table></div>
+      <div class="row"><span class="sub">${chon.length} phát hiện được chọn · tổng ảnh hưởng đã lượng hóa ${tien(tongAH(chon))}</span>
+        <button class="btn dark" data-act="nkTab" data-v="phieu" ${chon.length ? '' : 'disabled'}>Soạn phiếu phản hồi từ ${chon.length} phát hiện</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row"><h2>Máy đã đọc từng tài liệu thế nào</h2><span class="sub">Bộ định tuyến chọn cách đọc theo loại file</span></div>
+    <div class="tbox"><table class="t" style="min-width:860px"><thead><tr><th>Tài liệu</th><th>Máy nhận diện</th><th>Cách đọc</th><th>Chuyển tới</th><th>Trạng thái</th></tr></thead><tbody>
+      ${dinhTuyen().map(r => `<tr><td>${esc(r[0])}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td><span class="b ${r[4][0]}">${r[4][1]}</span></td></tr>`).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+
+function dinhTuyen() {
+  const co = [
+    ['HSTT_dot3.xlsx', 'Excel có công thức, 14 sheet', 'Đọc công thức và giá trị', 'Lớp 1 + Lớp 2', ['ok', 'Xong']],
+    ['BBNT_dot3_scan.pdf', 'PDF ảnh scan, 6 trang, không có lớp chữ', 'OCR tiếng Việt', 'Module 3', ['ok', 'Xong']],
+    ['CV_de_nghi_TT_dot3.pdf', 'PDF có lớp chữ', 'Đọc trực tiếp', 'Module 3', ['ok', 'Xong']],
+    ['Nhat_ky_thang9.pdf', 'PDF có chữ nhưng phông TCVN3', 'Chuyển mã sang Unicode rồi đọc', 'Module 3', ['ok', 'Xong']],
+    ['XL03_BVTC_rev2.dwg', 'Bản vẽ AutoCAD', 'Chuyển DXF, đọc lớp và kích thước', 'Module 4', ['info', 'Đang chạy']],
+    ['XL03_BVTC_rev2.pdf', 'PDF xuất từ CAD, cùng bản với DWG', 'Không đọc lại, dùng DWG', '—', ['mute', 'Bỏ qua']],
+    ['Anh_hien_truong_T9.zip', '24 ảnh JPG', 'Đọc ngày chụp', 'Module 3', ['mute', 'Chờ']],
+  ];
+  S.files.filter(f => f.nguon === 'nop' && f.id > 19).forEach(f => {
+    const e = f.ten.split('.').pop().toLowerCase();
+    const r = e === 'pdf' ? ['PDF – đang xem có lớp chữ hay bản scan', 'Đọc trực tiếp hoặc OCR', 'Module 3']
+      : ['xlsx', 'xlsm', 'xls'].includes(e) ? ['Excel', 'Đọc công thức và giá trị', 'Lớp 1 + Lớp 2']
+      : ['dwg', 'dxf'].includes(e) ? ['Bản vẽ AutoCAD', 'Chuyển DXF', 'Module 4']
+      : ['jpg', 'jpeg', 'png', 'heic'].includes(e) ? ['Ảnh', 'Đọc ngày chụp; OCR nếu là biên bản chụp', 'Module 3']
+      : ['Văn bản / nén', 'Giải nén hoặc đọc trực tiếp', 'Module 3'];
+    co.push([f.ten + ' (mới)', ...r, ['mute', 'Chờ']]);
+  });
+  return co;
+}
+
+function phieuNhap() {
+  return {so: soPhieu(), luc: '', han: S.nhap.han, hienTien: S.nhap.hienTien, ketLuan: S.nhap.ketLuan,
+    items: dangChon().map(p => ({ma: p.ma, tieu: p.tieuPda || p.tieu, nd: p.nd, yc: p.yc, ah: p.ah, vt: p.vt, gt: null}))};
+}
+
+function vPhieu() {
+  if (!S.dangSoan) {
+    const p = phieuMoi();
+    return `${vNkHead()}<div class="card"><div class="row"><div class="stack"><h2>Đã phát hành phiếu ${p.so}</h2><span>Lúc ${p.luc} · ${p.items.length} nội dung · kết luận: <strong>${KL_TEN[p.ketLuan]}</strong></span></div>
+      <div class="row" style="gap:10px">${p.ketLuan === 'du' ? '<button class="btn dark" data-act="bienBan">Xuất biên bản kiểm tra</button>' : ''}
+      <button class="btn" data-act="xemNhuPda">Xem như phòng dự án</button><button class="btn" data-act="soanTiep">Soạn phiếu tiếp theo (${soPhieu()})</button></div></div>
+      <div class="banner">${IC.lock}<span>Phiếu đã phát hành được lưu nguyên trạng, không sửa được. Muốn thay đổi thì phát hành phiếu tiếp theo.</span></div></div>`;
+  }
+  const chon = dangChon();
+  const kt = chon.map(p => [p, kiemSo(p)]);
+  const soLa = kt.filter(([, k]) => k.la.length);
+  const tongSo = kt.reduce((s, [, k]) => s + k.tong, 0);
+  const l3 = ph('L3-01');
+  const chan = S.trangThai === 'dang_nop' ? 'Phòng dự án chưa gửi hồ sơ (còn thiếu mục bắt buộc).' : soLa.length ? 'Có con số không có trong dữ liệu gốc.' : !chon.length ? 'Chưa chọn phát hiện nào.' : '';
+  const tamCN = DE_NGHI - tongAH(chon);
+  const opt = (v, t, s) => `<label class="opt ${S.nhap.ketLuan === v ? 'sel' : ''}"><input type="radio" name="kl" value="${v}" data-chg="ketLuan" ${S.nhap.ketLuan === v ? 'checked' : ''}><span class="stack" style="gap:2px"><strong>${t}</strong><span class="sub">${s}</span></span></label>`;
+  return `
+  <div class="stack"><div class="sub">HĐ 15/2026/HĐTC · Đợt 3 / Soạn phiếu phản hồi</div>
+    <div class="row"><h1>Phiếu phản hồi ${soPhieu()} <span class="b mute" style="vertical-align:middle">Bản nháp</span></h1></div></div>
+  <div class="row start" style="gap:24px">
+  <section class="main" style="gap:16px">
+    <div class="card" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;align-items:end">
+      <div class="stack"><label for="han"><strong>Hạn giải trình</strong></label><input id="han" type="date" value="${S.nhap.han}" data-chg="han"></div>
+      <div class="stack"><strong>Gửi tới</strong><span style="min-height:44px;display:flex;align-items:center">Phòng Dự án · 3 tài khoản</span></div>
+      <label class="row" style="justify-content:flex-start;gap:10px;min-height:44px;cursor:pointer"><input type="checkbox" data-chg="hienTien" ${S.nhap.hienTien ? 'checked' : ''}><span>Cho phòng dự án thấy số tiền ảnh hưởng</span></label>
+    </div>
+    ${chon.length ? chon.map((p, i) => vItemSoan(p, i)).join('') : '<div class="card"><div class="empty"><h2>Chưa chọn phát hiện nào</h2><button class="btn" data-act="nkTab" data-v="kq">Về kết quả kiểm tra</button></div></div>'}
+    <div class="card tight" style="background:var(--soft);border-style:dashed"><strong>Giữ nội bộ, không gửi (${PH.length - chon.length})</strong>
+      <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px">${PH.filter(p => !p.chon).map(p => `<li>${p.ma} · ${esc(p.tieu)} ${p.ocr && !p.xacNhan ? '– <strong>chưa xác nhận số OCR</strong>' : `<button class="link" data-act="themPhieu" data-ma="${p.ma}">Đưa vào phiếu</button>`}</li>`).join('')}</ul></div>
+  </section>
+  <aside class="rail">
+    <div class="card"><h3>Kiểm tra trước khi phát hành</h3><ul class="chk">
+      <li id="ck-tong" style="display:contents">${vCkTong()}</li>
+      <li>${IC.ok}<span>Nội dung nào cũng có căn cứ: file, sheet, ô</span></li>
+      <li>${IC.ok}<span>Ghi chú nội bộ để riêng, không gửi đi</span></li>
+      ${l3 && !l3.xacNhan ? `<li>${IC.warn}<span>L3-01 có số đọc bằng OCR chưa được xác nhận – đang để ngoài phiếu</span></li>` : ''}
+    </ul></div>
+    <div class="card"><h3>Kết luận đợt này</h3>
+      ${opt('chua_du', 'Chưa đủ điều kiện ký', 'Chờ giải trình ' + chon.length + ' nội dung')}
+      ${opt('mot_phan', 'Chấp nhận một phần', 'Tạm chấp nhận ' + tien(tamCN) + ', giữ lại ' + tien(tongAH(chon)) + ' chờ làm rõ')}
+      ${opt('du', 'Đủ điều kiện ký', 'Mở được nút xuất biên bản kiểm tra')}
+    </div>
+    <div class="card">
+      <button class="btn" data-act="xemTruoc" ${chon.length ? '' : 'disabled'}>Xem trước như phòng dự án</button>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+        <button class="btn" data-act="bao" data-v="Đã lưu nháp (bản mẫu).">Lưu nháp</button>
+        <button class="btn dark" data-act="phatHanh" ${chan ? 'disabled' : ''}>Phát hành</button></div>
+      ${chan ? `<p class="sub" style="color:var(--err)">Chưa phát hành được: ${chan}${S.trangThai === 'dang_nop' ? ' Thử: chuyển vai “Phòng dự án”, tải file cho C02, E03, thay file C01 rồi bấm Gửi.' : ''}</p>` : ''}
+      <p class="sub">Phát hành xong: phòng dự án thấy ${chon.length} nội dung${S.nhap.hienTien ? ' và số tiền ảnh hưởng' : ''}. Mỗi lần phát hành được lưu lại, không sửa được.</p>
+    </div>
+  </aside></div>`;
+}
+
+function vItemSoan(p, i) {
+  const k = kiemSo(p);
+  const mo = p.mo !== false && (i === 0 || p.mo);
+  if (!mo) return `<article class="item" style="flex-direction:row;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:16px 20px">
+      <div class="row start" style="justify-content:flex-start;flex-wrap:nowrap;flex:1 1 360px"><span class="no lt">${i + 1}</span><div class="stack" style="gap:2px"><strong>${esc(p.tieuPda || p.tieu)}</strong>
+        <span class="sub">${p.ma} · ${p.yc} · ${tien(p.ah)}${k.la.length ? ' · <span style="color:var(--err)">có số lạ</span>' : ''}${p.nd !== p.nhap ? ' · đã sửa câu chữ' : ''}</span></div></div>
+      <button class="btn" data-act="moItem" data-ma="${p.ma}">Mở</button></article>`;
+  return `<article class="item open">
+    <div class="row start"><div class="row start" style="justify-content:flex-start;flex-wrap:nowrap"><span class="no">${i + 1}</span>
+      <div class="stack" style="gap:2px"><span class="sub">${p.ma} · Lớp ${p.lop} · ${p.muc} · ảnh hưởng ${tien(p.ah)}</span><h2>${esc(p.tieuPda || p.tieu)}</h2></div></div>
+      <div class="stack" style="min-width:200px"><label for="yc-${p.ma}" class="sub">Yêu cầu phòng dự án</label>
+        <select id="yc-${p.ma}" data-chg="yc" data-ma="${p.ma}">${['Giải trình', 'Bổ sung tài liệu', 'Sửa hồ sơ'].map(v => `<option ${p.yc === v ? 'selected' : ''}>${v}</option>`).join('')}</select></div></div>
+    <div class="stack" style="gap:8px">
+      <div class="row"><label for="nd-${p.ma}"><strong>Nội dung gửi phòng dự án</strong></label><span id="ck-${p.ma}">${vCk(k, p)}</span></div>
+      <textarea id="nd-${p.ma}" rows="4" data-inp="nd" data-ma="${p.ma}">${esc(p.nd)}</textarea>
+      <div class="row" style="justify-content:flex-start;gap:8px">
+        <button class="btn sm" data-act="khoiPhuc" data-ma="${p.ma}">Khôi phục bản nháp AI</button>
+        <button class="btn sm" data-act="bao" data-v="Căn cứ: ${esc(p.vt)}">Xem căn cứ</button>
+        <button class="btn sm danger" data-act="boPhieu" data-ma="${p.ma}">Bỏ khỏi phiếu</button>
+        <button class="btn sm" data-act="dongItem" data-ma="${p.ma}">Thu gọn</button></div>
+    </div>
+    <div class="stack"><label for="gc-${p.ma}"><strong>Ghi chú nội bộ</strong> <span class="sub">– không gửi đi</span></label>
+      <textarea id="gc-${p.ma}" class="int" rows="2" data-inp="gc" data-ma="${p.ma}" placeholder="Ghi chú cho riêng anh…">${esc(p.gc)}</textarea></div>
+  </article>`;
+}
+function vCkTong() {
+  const kt = dangChon().map(p => [p, kiemSo(p)]);
+  const soLa = kt.filter(([, k]) => k.la.length);
+  const tongSo = kt.reduce((s, [, k]) => s + k.tong, 0);
+  return `<div style="display:flex;gap:10px;align-items:flex-start">${soLa.length ? IC.warn : IC.ok}<span>${soLa.length ? `<strong>Có số không có trong dữ liệu gốc:</strong> ${esc(soLa.map(([p, k]) => p.ma + ' (' + k.la.join(', ') + ')').join('; '))}` : `Mọi con số trong phiếu có trong dữ liệu gốc (${tongSo}/${tongSo})`}</span></div>`;
+}
+const vCk = (k, p) => k.la.length ? `<span class="b err">Số không có trong dữ liệu gốc: ${esc(k.la.join(', '))}</span>`
+  : `<span class="b info">${p.nd === p.nhap ? 'AI soạn nháp · ' : 'Đã sửa · '}${k.tong}/${k.tong} con số khớp dữ liệu gốc</span>`;
+
+function vGt() {
+  const p = phieuMoi();
+  if (!p) return `${vNkHead()}<div class="card"><div class="empty"><h2>Chưa phát hành phiếu nào</h2><p>Giải trình của phòng dự án sẽ về đây sau khi anh phát hành phiếu phản hồi.</p></div></div>`;
+  return `${vNkHead()}<div class="card"><div class="row"><h2>Giải trình cho phiếu ${p.so}</h2><span class="sub">${p.items.filter(i => i.gt).length}/${p.items.length} nội dung đã giải trình</span></div>
+    <p class="sub">Đánh giá của anh chỉ hiện cho phòng dự án ở lần phát hành tiếp theo.</p></div>
+    ${p.items.map((it, i) => `<article class="item"><div class="row start"><div class="row start" style="justify-content:flex-start;flex-wrap:nowrap"><span class="no">${i + 1}</span><div class="stack" style="gap:2px"><span class="sub">${it.ma} · ${tien(it.ah)}</span><h2>${esc(it.tieu)}</h2></div></div>
+      ${it.gt ? (it.danhGia ? `<span class="b ${it.danhGia === 'chap_nhan' ? 'ok' : 'err'}">${it.danhGia === 'chap_nhan' ? 'Đã chấp nhận' : 'Chưa chấp nhận'}</span>` : '<span class="b warn">Chờ anh xem</span>') : '<span class="b mute">Chưa giải trình</span>'}</div>
+      ${it.gt ? `<div class="quote">${esc(it.gt.nd)}</div><div class="row"><span class="sub">Gửi ${it.gt.luc}${it.gt.files.length ? ' · đính kèm: ' + it.gt.files.map(esc).join(', ') : ''}</span>
+        <div class="row" style="gap:8px"><button class="btn sm" data-act="danhGia" data-ma="${it.ma}" data-v="chua">Chưa chấp nhận</button><button class="btn sm dark" data-act="danhGia" data-ma="${it.ma}" data-v="chap_nhan">Chấp nhận giải trình</button></div></div>` : ''}
+    </article>`).join('')}`;
+}
+
+function vLs() {
+  return `${vNkHead()}<div class="card"><h2>Lịch sử đợt 3</h2><ol class="tl">${S.log.map(l => `<li><span class="sub">${l.t}</span><span>${esc(l.nd)} ${l.pda ? '' : '<span class="b mute">nội bộ</span>'}</span></li>`).join('')}</ol></div>`;
+}
+
+function vBienBan() {
+  const p = phieuMoi();
+  return `<div class="wrap" style="display:block"><div class="row no-print" style="max-width:860px;margin:0 auto 16px">
+      <button class="btn" data-act="hetBienBan">Quay lại</button><button class="btn dark" data-act="in">In / lưu PDF</button></div>
+    <div class="bb"><div style="text-align:center" class="stack"><strong style="font-size:18px">BIÊN BẢN KIỂM TRA HỒ SƠ THANH TOÁN</strong><span>Hợp đồng 15/2026/HĐTC · Đợt thanh toán 3 · Ngày nghiệm thu 28/09/2026</span></div>
+      <p>Người kiểm tra: Giám đốc Tài chính. Ngày lập: ${bayGio().split(' ')[0]}/2026.</p>
+      <table><tbody>
+        <tr><th>Giá trị hợp đồng hiệu lực tại ngày nghiệm thu</th><td>18.734.600.000 đ (gốc + PL01 + PL02)</td></tr>
+        <tr><th>Giá trị đề nghị kỳ này</th><td>${tien(DE_NGHI)}</td></tr>
+        <tr><th>Lũy kế sau kỳ này</th><td>12.866.420.000 đ (68,7%)</td></tr>
+        <tr><th>Kiểm tra hình thức</th><td>Đạt</td></tr>
+        <tr><th>Kiểm tra số liệu</th><td>Lớp 1 toàn vẹn file, Lớp 2 đối chiếu HĐ/phụ lục/BOQ, Lớp 3 chứng từ</td></tr>
+        <tr><th>Phiếu phản hồi đã phát hành</th><td>${S.phieu.map(x => x.so + ' (' + x.luc + ', ' + x.items.length + ' nội dung)').join('; ')}</td></tr>
+        <tr><th>Kết luận</th><td><strong>${KL_TEN[p.ketLuan]}</strong></td></tr>
+      </tbody></table>
+      <p class="sub">Biên bản mẫu. Bản chạy thật sẽ kèm danh sách phát hiện, giải trình và nhật ký máy.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:40px;text-align:center"><strong>Phòng Dự án</strong><strong>Giám đốc Tài chính</strong></div>
+    </div></div>`;
+}
+
+function vNk() {
+  document.body.classList.add('nk');
+  if (S.bienBan) return vBienBan();
+  const noi = {kq: vKq, phieu: vPhieu, gt: vGt, ls: vLs}[S.nkTab]();
+  return vNkTop() + `<main class="wrap">${vNkSide()}<section class="main">${noi}</section></main>`;
+}
+
+// =====================================================================
+// VẼ + SỰ KIỆN
+// =====================================================================
+function vVai() {
+  return `<div class="in"><span>Bản mẫu giao diện – chạy trên trình duyệt, chưa lưu dữ liệu, không gửi file đi đâu.</span>
+    <div class="row" style="gap:10px"><span>Xem với vai:</span><div class="seg" role="group" aria-label="Chọn vai">
+      <button data-act="vai" data-v="pda" aria-pressed="${S.vai === 'pda'}">Phòng dự án (máy trong LAN)</button>
+      <button data-act="vai" data-v="nk" aria-pressed="${S.vai === 'nk'}">Người ký (máy anh)</button></div></div></div>`;
+}
+function ve() {
+  document.getElementById('vai').innerHTML = vVai();
+  document.getElementById('app').innerHTML = S.vai === 'pda' ? vPda() : vNk();
+  ganDrop();
+}
+
+function themFile(list, maEp) {
+  const moi = [];
+  for (const f of list) {
+    const [kq, note] = kiemFile(f);
+    const ma = maEp || xepMuc(f.name);
+    const o = {id: seq++, ma, ten: f.name, size: f.size, kq, note, nguon: 'nop', luc: bayGio()};
+    S.files.push(o); moi.push(o);
+  }
+  if (!moi.length) return;
+  // thay file lỗi của cùng mục khi nộp đè
+  if (maEp) S.files = S.files.filter(f => !(f.ma === maEp && f.kq === 'err' && !moi.includes(f)));
+  if (!maEp) S.vuaTai = moi.map(o => o.id).concat(S.vuaTai);
+  const muc = [...new Set(moi.map(o => o.ma || 'chưa xếp'))].join(', ');
+  ghi(`${S.trangThai === 'dang_nop' ? 'Nộp' : 'Nộp bổ sung'} ${moi.length} file (${muc})`);
+  const loi = moi.filter(o => o.kq === 'err').length, chuaXep = moi.filter(o => !o.ma).length;
+  bao(`Đã nhận ${moi.length} file${loi ? ' · ' + loi + ' file lỗi' : ''}${chuaXep ? ' · ' + chuaXep + ' file chưa xếp được mục' : ''}.`);
+  ve();
+}
+
+function ganDrop() {
+  const d = document.getElementById('drop');
+  if (!d) return;
+  d.addEventListener('dragover', e => { e.preventDefault(); d.classList.add('on'); });
+  d.addEventListener('dragleave', () => d.classList.remove('on'));
+  d.addEventListener('drop', e => { e.preventDefault(); d.classList.remove('on'); themFile([...e.dataTransfer.files]); });
+}
+
+const ACT = {
+  vai: el => { S.vai = el.dataset.v; S.xemTruoc = false; S.bienBan = false; window.scrollTo(0, 0); ve(); },
+  pdaTab: el => { S.pdaTab = el.dataset.v; window.scrollTo(0, 0); ve(); },
+  nkTab: el => { S.nkTab = el.dataset.v; window.scrollTo(0, 0); ve(); },
+  bao: el => bao(el.dataset.v),
+  moNhom: el => { S.moNhom[el.dataset.v] = !S.moNhom[el.dataset.v]; ve(); },
+  xoaVuaTai: () => { S.vuaTai = []; ve(); },
+  xoaFile: el => { const id = +el.dataset.id; const f = S.files.find(x => x.id === id); S.files = S.files.filter(x => x.id !== id); S.vuaTai = S.vuaTai.filter(x => x !== id); ghi('Gỡ file ' + f.ten); ve(); },
+  gui: () => { if (!tongHop().guiDuoc) return; S.trangThai = 'cho_kiem_tra'; ghi('Gửi hồ sơ – kiểm tra hình thức: Đạt, chuyển người ký'); bao('Đã gửi hồ sơ. Người ký sẽ kiểm tra số liệu.'); window.scrollTo(0, 0); ve(); },
+  loc: el => { S.loc = +el.dataset.v; ve(); },
+  xacNhan: el => { const p = ph(el.dataset.ma); p.xacNhan = true; ghi(p.ma + ': người ký xác nhận số OCR', false); bao('Đã xác nhận. Có thể đưa ' + p.ma + ' vào phiếu.'); ve(); },
+  themPhieu: el => { ph(el.dataset.ma).chon = true; ve(); },
+  boPhieu: el => { ph(el.dataset.ma).chon = false; ve(); },
+  moItem: el => { PH.forEach(p => p.mo = false); ph(el.dataset.ma).mo = true; ve(); },
+  dongItem: el => { ph(el.dataset.ma).mo = false; ve(); },
+  khoiPhuc: el => { const p = ph(el.dataset.ma); p.nd = p.nhap; ve(); },
+  xemTruoc: () => { S.xemTruoc = true; S.vai = 'pda'; S.pdaTab = 'phanhoi'; window.scrollTo(0, 0); ve(); },
+  hetXemTruoc: () => { S.xemTruoc = false; S.vai = 'nk'; S.nkTab = 'phieu'; ve(); },
+  xemNhuPda: () => { S.vai = 'pda'; S.pdaTab = 'phanhoi'; window.scrollTo(0, 0); ve(); },
+  phatHanh: () => {
+    const la = dangChon().filter(x => kiemSo(x).la.length);
+    if (la.length) { bao('Chưa phát hành: ' + la.map(x => x.ma).join(', ') + ' có con số không có trong dữ liệu gốc.'); ve(); return; }
+    const p = phieuNhap(); p.luc = bayGio();
+    S.phieu.push(p); S.dangSoan = false;
+    S.trangThai = p.ketLuan === 'du' ? 'du_dieu_kien' : 'da_phat_hanh';
+    ghi(`Người ký phát hành phiếu ${p.so} (${p.items.length} nội dung) – ${KL_TEN[p.ketLuan]}`);
+    bao(`Đã phát hành ${p.so}. Phòng dự án thấy ngay trên cổng.`); window.scrollTo(0, 0); ve();
+  },
+  soanTiep: () => { S.dangSoan = true; ve(); },
+  suaGT: el => { const it = phieuMoi().items.find(i => i.ma === el.dataset.ma); S.nhapGT[it.ma] = {nd: it.gt.nd, files: [...it.gt.files], sua: true}; ve(); },
+  guiGT: el => {
+    const k = el.dataset.ma, n = S.nhapGT[k] || {nd: '', files: []};
+    if (!n.nd.trim()) { bao('Nhập nội dung giải trình trước khi gửi.'); document.getElementById('gt-' + k)?.focus(); return; }
+    const it = phieuMoi().items.find(i => i.ma === k);
+    it.gt = {nd: n.nd.trim(), files: n.files, luc: bayGio()}; it.danhGia = null;
+    delete S.nhapGT[k];
+    ghi(`Giải trình nội dung ${k}${n.files.length ? ' kèm ' + n.files.length + ' tài liệu' : ''}`);
+    bao('Đã gửi giải trình. Người ký nhận được ngay.'); ve();
+  },
+  danhGia: el => { const it = phieuMoi().items.find(i => i.ma === el.dataset.ma); it.danhGia = el.dataset.v; ghi(`${it.ma}: ${el.dataset.v === 'chap_nhan' ? 'chấp nhận' : 'chưa chấp nhận'} giải trình`, false); ve(); },
+  bienBan: () => { S.bienBan = true; window.scrollTo(0, 0); ve(); },
+  hetBienBan: () => { S.bienBan = false; ve(); },
+  in: () => window.print(),
+};
+const CHG = {
+  tai: el => { themFile([...el.files]); },
+  taiMuc: el => { themFile([...el.files], el.dataset.ma); },
+  doiMuc: el => { const f = S.files.find(x => x.id === +el.dataset.id); f.ma = el.value || null; ve(); },
+  chon: el => { ph(el.dataset.ma).chon = el.checked; ve(); },
+  yc: el => { ph(el.dataset.ma).yc = el.value; },
+  han: el => { S.nhap.han = el.value; },
+  hienTien: el => { S.nhap.hienTien = el.checked; ve(); },
+  ketLuan: el => { S.nhap.ketLuan = el.value; ve(); },
+  dinhKem: el => { const k = el.dataset.ma; S.nhapGT[k] = S.nhapGT[k] || {nd: '', files: []}; S.nhapGT[k].files.push(...[...el.files].map(f => f.name)); ve(); },
+};
+const INP = {
+  nd: el => { const p = ph(el.dataset.ma); p.nd = el.value; const c = document.getElementById('ck-' + p.ma); if (c) c.innerHTML = vCk(kiemSo(p), p);
+    const t = document.getElementById('ck-tong'); if (t) t.innerHTML = vCkTong(); },
+  gc: el => { ph(el.dataset.ma).gc = el.value; },
+  gt: el => { const k = el.dataset.ma; S.nhapGT[k] = S.nhapGT[k] || {nd: '', files: []}; S.nhapGT[k].nd = el.value; },
+};
+document.addEventListener('click', e => { const el = e.target.closest('[data-act]'); if (el && !el.disabled) ACT[el.dataset.act](el, e); });
+document.addEventListener('change', e => { const el = e.target.closest('[data-chg]'); if (el) CHG[el.dataset.chg](el, e); });
+document.addEventListener('input', e => { const el = e.target.closest('[data-inp]'); if (el) INP[el.dataset.inp](el, e); });
+
+ve();
+</script>
+</body>
+</html>

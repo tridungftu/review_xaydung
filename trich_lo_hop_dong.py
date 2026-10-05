@@ -5,13 +5,14 @@ trich_lo_hop_dong.py - Trích 36 tham số cho MỘT LOẠT hợp đồng, nhờ
 Luồng dữ liệu
     Máy này (lưu hợp đồng)                      Máy AI trong LAN (Ollama)
     1. đọc hợp đồng, trích bằng quy tắc
-    2. cắt các Điều liên quan, ẩn danh   ───►   3. đọc đoạn văn, trả JSON 36 tham số
+    2. cắt các Điều liên quan, ẩn danh   ───►   3. đọc đoạn văn, trả JSON từng nhóm tham số (8 nhóm)
     4. kiểm trích dẫn AI có thật trong HĐ  ◄───     (không lưu gì trên máy AI)
     5. gộp quy tắc + AI, ghi file Excel trên máy này
 
 Lệnh
     python trich_lo_hop_dong.py kiem-tra                 kiểm tra kết nối máy AI, liệt kê model
-    python trich_lo_hop_dong.py cau-hinh --may-ai 192.168.1.50 [--model qwen3.6:35b]
+    python trich_lo_hop_dong.py cau-hinh --may-ai 192.168.1.50 [--model qwen3:8b]
+    (Dùng hằng ngày: cửa sổ giao_dien_trich_hd.py, mở bằng 5_trich_hop_dong_AI.bat)
     python trich_lo_hop_dong.py chay <thư mục hoặc file ...> [--out ket_qua_AI\\trich_lo] [--lam-lai] [--khong-ai]
 
 Kết quả (mặc định ket_qua_AI\\trich_lo\\)
@@ -79,58 +80,58 @@ def ghi_cau_hinh(may_ai=None, model=None, an_danh=None):
     return cfg
 
 
-def kiem_tra(cfg=None, thu_hoi=True):
+def kiem_tra(cfg=None, thu_hoi=True, bao=print):
     """Kiểm tra máy AI: kết nối, có model chưa, trả lời thử. Trả về True/False."""
     cfg = cfg or M.cau_hinh_ai()
     host, model = cfg["may_ai"], cfg["model"]
-    print(f"Máy AI: {host}   Model: {model}")
+    bao(f"Máy AI: {host}   Model: {model}")
     try:
         with urllib.request.urlopen(host + "/api/tags", timeout=5) as r:
             tags = json.loads(r.read())
     except Exception as e:
-        print(f"  [LỖI] Không kết nối được ({e.__class__.__name__}: {e}).")
-        print("  Kiểm tra: máy AI đã bật? Ollama đang chạy? Đã đặt OLLAMA_HOST=0.0.0.0:11434 và mở tường lửa cổng 11434 "
+        bao(f"  [LỖI] Không kết nối được ({e.__class__.__name__}: {e}).")
+        bao("  Kiểm tra: máy AI đã bật? Ollama đang chạy? Đã đặt OLLAMA_HOST=0.0.0.0:11434 và mở tường lửa cổng 11434 "
               "cho máy này? IP máy AI có đổi không?")
         return False
     co = [m.get("name") for m in tags.get("models", [])]
-    print(f"  [OK] Kết nối được. Model trên máy AI: {', '.join(co) or '(chưa có model nào)'}")
+    bao(f"  [OK] Kết nối được. Model trên máy AI: {', '.join(co) or '(chưa có model nào)'}")
     if model not in co and f"{model}:latest" not in co:
-        print(f"  [LỖI] Máy AI chưa có model '{model}'. Chọn một model trong danh sách trên "
-              f"(14_cau_hinh_may_AI.bat) hoặc chạy trên máy AI: ollama pull {model}")
+        bao(f"  [LỖI] Máy AI chưa có model '{model}'. Chọn một model trong danh sách trên "
+              f"(tab Máy AI) hoặc chạy trên máy AI: ollama pull {model}")
         return False
     if thu_hoi:
         llm = M.LocalLLM(model, host, cfg["api"], num_ctx=2048, timeout=300)
         try:
             t0 = time.time()
             raw = llm.chat("Bạn chỉ trả lời JSON.", 'Trả về đúng JSON {"tra_loi": "OK"}')
-            print(f"  [OK] Model trả lời sau {time.time() - t0:.0f} giây: {raw.strip()[:60]}")
+            bao(f"  [OK] Model trả lời sau {time.time() - t0:.0f} giây: {raw.strip()[:60]}")
         except Exception as e:
-            print(f"  [LỖI] Model không trả lời được: {e}")
+            bao(f"  [LỖI] Model không trả lời được: {e}")
             return False
     return True
 
 
-def tu_tim_lai(cfg):
+def tu_tim_lai(cfg, bao=print):
     """Máy AI không trả lời ở địa chỉ cũ (đổi mạng / đổi IP): dò trong mạng LAN.
     Thấy đúng một máy có model đang dùng thì tự cập nhật cấu hình và chạy tiếp."""
     import may_ai as A
-    print("\nĐịa chỉ cũ không trả lời. Đang dò máy AI trong mạng LAN …")
+    bao("\nĐịa chỉ cũ không trả lời. Đang dò máy AI trong mạng LAN …")
     try:
         thay = A.tim_may_ai()
     except Exception as e:
-        print(f"  Không dò được ({e}).")
+        bao(f"  Không dò được ({e}).")
         return None
     hop = [(ip, ms) for ip, ms in thay if cfg["model"] in ms or f"{cfg['model']}:latest" in ms]
     for ip, ms in thay:
-        print(f"  Thấy máy AI {ip}: {', '.join(ms)}")
+        bao(f"  Thấy máy AI {ip}: {', '.join(ms)}")
     if len(hop) != 1:
-        print("  " + ("Không thấy máy AI nào." if not thay else
-                      f"Có {len(hop)} máy có model {cfg['model']} – chọn trong 14_cau_hinh_may_AI.bat."))
+        bao("  " + ("Không thấy máy AI nào." if not thay else
+                      f"Có {len(hop)} máy có model {cfg['model']} – chọn trong tab Máy AI."))
         return None
     moi = dict(cfg, may_ai=A.chuan_host(hop[0][0], A.tach_host(cfg["may_ai"])[1]))
     A.luu_cau_hinh(moi)
-    print(f"  Máy AI đã đổi địa chỉ: {cfg['may_ai']} → {moi['may_ai']}. Đã cập nhật cấu hình, chạy tiếp.\n")
-    return moi if kiem_tra(moi, thu_hoi=False) else None
+    bao(f"  Máy AI đã đổi địa chỉ: {cfg['may_ai']} → {moi['may_ai']}. Đã cập nhật cấu hình, chạy tiếp.\n")
+    return moi if kiem_tra(moi, thu_hoi=False, bao=bao) else None
 
 
 # ------------------------------------------------------------------ gộp quy tắc + AI
@@ -216,7 +217,78 @@ def bam(path, model, an, ca):
 
 
 # ------------------------------------------------------------------ xử lý một hợp đồng
-def mot_hop_dong(path, cfg, out_dir, llm, lam_lai=False):
+class Dung(Exception):
+    """Người dùng bấm Dừng."""
+
+
+class LoiChay(Exception):
+    """Lỗi làm dừng cả lô (không kết nối được máy AI, không có file...)."""
+
+
+def _uoc_token(text):
+    return int(len(text) / 3)  # tiếng Việt với tokenizer Qwen/Gemma: khoảng 3–3,5 ký tự / token
+
+
+def hoi_ai_theo_nhom(llm, text, rows, bao=print, dung=None, so_lan=2):
+    """Hỏi AI từng nhóm tham số (8 nhóm) thay vì 36 tham số một lần: mỗi lần trả lời ngắn, nhóm lỗi thì hỏi lại
+    riêng nhóm đó. Hợp đồng đặt ở ĐẦU câu hỏi, giống hệt nhau giữa các nhóm, để Ollama dùng lại phần đã đọc
+    (chỉ đọc hợp đồng một lần). Trả về (kết quả {mã: {...}}, lỗi {nhóm: lý do}, thống kê, cảnh báo)."""
+    nhom = {}
+    for r in rows:
+        nhom.setdefault(r["nhom"], []).append(r)
+    can = _uoc_token(text) + 3000
+    llm.num_ctx = 32768 if can <= 32768 else (49152 if can <= 49152 else 65536)
+    canh_bao = ""
+    if can > 65536:
+        canh_bao = (f"Hợp đồng quá dài (~{can:,} token): AI chỉ đọc được khoảng {65536 * 100 // can}% đầu. "
+                    "Các tham số nằm ở phần sau có thể bị thiếu.")
+        bao("    CẢNH BÁO: " + canh_bao)
+    ket, loi = {}, {}
+    tk = dict(token_vao=0, token_ra=0, giay=0.0)
+    for i, (ten, ds) in enumerate(nhom.items(), 1):
+        if dung is not None and dung.is_set():
+            raise Dung()
+        ma = {r["ma"] for r in ds}
+        dsx = "\n".join(f"{r['ma']} | {r['ten']}" + (f" ({r['don_vi']})" if r["don_vi"] else "") for r in ds)
+        user = (f"HỢP ĐỒNG\n{text}\n\n---\nĐọc hợp đồng trên và trích các tham số trong DANH SÁCH, giữ đúng mã."
+                f"\n\nDANH SÁCH THAM SỐ (mã | tham số)\n{dsx}\n\nĐỊNH DẠNG ĐẦU RA\n{M.AI_FORMAT}")
+        for lan in range(1, so_lan + 1):
+            bao(f"    nhóm {i}/{len(nhom)} – {ten} ({len(ds)} tham số)" + (f" – thử lại lần {lan}" if lan > 1 else "") + " …")
+            try:
+                raw = llm.chat(M.AI_SYSTEM, user)
+                m = re.search(r"\{.*\}", raw, re.S)
+                got = json.loads(m.group(0) if m else raw)
+                ket.update({k: v for k, v in got.items() if k in ma})
+                for k in tk:
+                    tk[k] += llm.stats.get(k) or 0
+                if i == 1 and llm.stats.get("token_vao") and llm.stats["token_vao"] < _uoc_token(text) * 0.6:
+                    canh_bao = canh_bao or ("Máy AI có thể đã cắt bớt hợp đồng (đọc ít token hơn dự kiến) – "
+                                            "kiểm tra kỹ các tham số Không tìm thấy.")
+                bao(f"      xong sau {llm.stats.get('giay')} giây")
+                break
+            except Exception as e:
+                if lan < so_lan:
+                    bao(f"      lỗi: {e} – chờ 5 giây rồi hỏi lại nhóm này")
+                    time.sleep(5)
+                else:
+                    loi[ten] = str(e)
+                    bao(f"      LỖI nhóm {ten}: {e} – bỏ qua nhóm này, các nhóm khác vẫn chạy")
+    tk["giay"] = round(tk["giay"], 1)
+    return ket, loi, tk, canh_bao
+
+
+def chuan_ai(ai, rows):
+    """AI hay ghi tỷ lệ thiếu dấu % ("90" thay vì "90%"): tham số đơn vị % mà AI ghi số trần > 1 thì thêm %."""
+    dv = {r["ma"]: r["don_vi"] for r in rows}
+    for ma, v in ai.items():
+        if isinstance(v, dict) and str(dv.get(ma, "")).startswith("%"):
+            g = str(v.get("gia_tri", "")).strip()
+            if re.fullmatch(r"\d+([.,]\d+)?", g) and M.so(g) > 1:
+                v["gia_tri"] = g + "%"
+    return ai
+
+
+def mot_hop_dong(path, cfg, out_dir, llm, lam_lai=False, bao=print, dung=None):
     t0 = time.time()
     paras = M.doc_hop_dong(path)
     if len(paras) < 20:
@@ -233,31 +305,33 @@ def mot_hop_dong(path, cfg, out_dir, llm, lam_lai=False):
             text = M.an_danh(text, rows)
         log["ky_tu"] = len(text)
         if cache.exists() and not lam_lai:
-            raw = cache.read_text(encoding="utf-8")
+            ai = json.loads(cache.read_text(encoding="utf-8"))
             log["nguon_ai"] = "Dùng lại kết quả AI lần trước"
+            bao("    dùng lại kết quả AI lần trước (không hỏi lại)")
         else:
-            params = [(r["ma"], r["nhom"], r["ten"], r["don_vi"]) for r in rows]
-            llm.num_ctx = 65536 if ca else 32768
-            try:
-                _, raw = llm.extract_all(text, params)
-            except json.JSONDecodeError:
-                raise RuntimeError("AI trả về không phải JSON hợp lệ – chạy lại, hoặc đổi model")
-            cache.parent.mkdir(parents=True, exist_ok=True)
-            cache.write_text(raw, encoding="utf-8")  # chỉ lưu khi đọc được JSON
-            log.update(token_vao=llm.stats.get("token_vao"), token_ra=llm.stats.get("token_ra"),
-                       giay_ai=llm.stats.get("giay"), nguon_ai=f"Hỏi {cfg['model']} tại {cfg['may_ai']}")
-        m = re.search(r"\{.*\}", raw, re.S)
-        ai = json.loads(m.group(0) if m else raw)
+            ai, loi, tk, canh_bao = hoi_ai_theo_nhom(llm, text, rows, bao, dung)
+            if not ai:
+                raise RuntimeError("Máy AI không trả lời được nhóm nào: " + "; ".join(f"{k}: {v}" for k, v in loi.items()))
+            if not loi:  # chỉ lưu khi đủ mọi nhóm, để lần sau hỏi lại nhóm lỗi
+                cache.parent.mkdir(parents=True, exist_ok=True)
+                cache.write_text(json.dumps(ai, ensure_ascii=False), encoding="utf-8")
+            log.update(tk, giay_ai=tk["giay"], nguon_ai=f"Hỏi {cfg['model']} tại {cfg['may_ai']}")
+            ghi_chu = ([f"Nhóm AI lỗi: " + "; ".join(f"{k} ({v[:80]})" for k, v in loi.items())] if loi else []) + \
+                      ([canh_bao] if canh_bao else [])
+            if ghi_chu:
+                log["canh_bao"] = " | ".join(ghi_chu)
         goc = "\n".join(t for _, t in paras)
+        chuan_ai(ai, rows)
         cmp = M.so_sanh_ai(rows, ai, goc, M.an_danh(goc, rows) if an else "")
         ten = _ten_an_toan(Path(path).stem)
-        M.ghi_so_sanh(out_dir / f"so_sanh_AI_{ten}.xlsx", path, cmp, llm.stats if log["token_vao"] else {},
+        M.ghi_so_sanh(out_dir / f"so_sanh_AI_{ten}.xlsx", path, cmp,
+                      dict(token_vao=log.get("token_vao"), token_ra=log.get("token_ra"), giay=log.get("giay_ai")),
                       cfg["model"], len(text), an)
     rows, tt = gop(rows, cmp or [])
     ten = _ten_an_toan(Path(path).stem)
     M.ghi_master(out_dir / f"master_{ten}.xlsx", path, rows)
     log["giay"] = round(time.time() - t0, 1)
-    log["ket_qua"] = "OK"
+    log["ket_qua"] = "OK" + (" – " + log["canh_bao"] if log.get("canh_bao") else "")
     log["master"] = f"master_{ten}.xlsx"
     return rows, tt, cmp, log
 
@@ -366,14 +440,15 @@ def ghi_tong_hop(out, ket_qua, logs, cfg, dung_ai):
         vals = [lg["file"], lg["ket_qua"], lg.get("so_doan"), lg.get("ky_tu"), lg.get("token_vao"), lg.get("token_ra"),
                 lg.get("giay_ai"), lg.get("giay"), lg.get("nguon_ai"), lg.get("master", "")]
         for j, v in enumerate(vals, 1):
-            _put(ws, i, j, v, wrap=j in (1, 2, 9), fill=(M.RED if j == 2 and lg["ket_qua"] != "OK" else None))
+            _put(ws, i, j, v, wrap=j in (1, 2, 9), fill=(M.RED if j == 2 and not lg["ket_qua"].startswith("OK") else
+                                                (M.YELLOW if j == 2 and lg["ket_qua"] != "OK" else None)))
     for j, w in enumerate([42, 40, 9, 12, 10, 10, 10, 10, 40, 40], 1):
         ws.column_dimensions[get_column_letter(j)].width = w
     wb.save(out)
 
 
 # ------------------------------------------------------------------ chạy cả lô
-def tim_file(nguon):
+def tim_file(nguon, bao=print):
     files = []
     for s in nguon:
         p = Path(s)
@@ -382,7 +457,7 @@ def tim_file(nguon):
         elif p.suffix.lower() in DUOI and p.exists():
             files.append(p)
         else:
-            print(f"  Bỏ qua (không phải hợp đồng .doc/.docx/.pdf): {s}")
+            bao(f"  Bỏ qua (không phải hợp đồng .doc/.docx/.pdf): {s}")
     seen, out = set(), []
     for f in files:
         k = str(f.resolve()).lower()
@@ -392,47 +467,61 @@ def tim_file(nguon):
     return out
 
 
-def chay(nguon, out_dir, lam_lai=False, khong_ai=False):
+def chay(nguon, out_dir, lam_lai=False, khong_ai=False, bao=print, dung=None, tien_do=None):
+    """Chạy cả lô. bao(msg): in tiến độ; dung: threading.Event để dừng; tien_do(i, trang_thai): cập nhật từng file.
+    Trả về đường dẫn file TONG_HOP. Lỗi làm dừng cả lô -> raise LoiChay."""
     cfg = M.cau_hinh_ai()
-    files = tim_file(nguon)
+    files = tim_file(nguon, bao)
     if not files:
-        sys.exit("Không thấy file hợp đồng (.doc, .docx, .pdf) nào. Chép hợp đồng vào thư mục hop_dong_can_trich "
-                 "rồi chạy lại, hoặc kéo thả thư mục chứa hợp đồng vào 15_trich_lo_hop_dong.bat.")
+        raise LoiChay("Không thấy file hợp đồng (.doc, .docx, .pdf) nào trong danh sách.")
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     llm = None
     if not khong_ai:
-        if not kiem_tra(cfg, thu_hoi=False):
-            cfg = tu_tim_lai(cfg)
+        if not kiem_tra(cfg, thu_hoi=False, bao=bao):
+            cfg = tu_tim_lai(cfg, bao)
             if cfg is None:
-                sys.exit("Dừng: chưa kết nối được máy AI. Mở 14_cau_hinh_may_AI.bat để nhập IP máy AI, "
-                         "hoặc chạy chỉ bằng quy tắc với --khong-ai.")
+                raise LoiChay("Chưa kết nối được máy AI. Mở tab Máy AI để nhập hoặc tự tìm IP máy AI, "
+                              "hoặc chọn 'Chỉ dùng quy tắc'.")
         llm = M.LocalLLM(cfg["model"], cfg["may_ai"], cfg["api"], timeout=int(cfg["timeout_giay"]))
-    print(f"\n{len(files)} hợp đồng → {out_dir}\n")
+    bao(f"\n{len(files)} hợp đồng → {out_dir}\n")
     ket_qua, logs = [], []
     for i, f in enumerate(files, 1):
-        print(f"[{i}/{len(files)}] {f.name}")
+        if dung is not None and dung.is_set():
+            bao("Đã dừng theo yêu cầu. Lần chạy sau sẽ dùng lại kết quả AI đã có.")
+            break
+        bao(f"[{i}/{len(files)}] {f.name}")
+        if tien_do:
+            tien_do(i - 1, "Đang chạy")
         try:
-            rows, tt, cmp, log = mot_hop_dong(f, cfg, out_dir, llm, lam_lai)
+            rows, tt, cmp, log = mot_hop_dong(f, cfg, out_dir, llm, lam_lai, bao, dung)
             c = Counter(tt.values())
-            print(f"    xong {log['giay']} giây – {log['nguon_ai'] or 'chỉ quy tắc'} – "
-                  + ", ".join(f"{k}: {n}" for k, n in c.most_common()))
+            tom = ", ".join(f"{k}: {n}" for k, n in c.most_common())
+            bao(f"    xong {log['giay']} giây – {log['nguon_ai'] or 'chỉ quy tắc'} – {tom}")
             ket_qua.append((f, rows, tt, cmp))
             logs.append(log)
-        except KeyboardInterrupt:
-            print("    Dừng theo yêu cầu. Lần chạy sau sẽ dùng lại kết quả AI đã có.")
+            if tien_do:
+                can = sum(1 for t in tt.values() if TT_MAU.get(t, (None, False))[1])
+                tien_do(i - 1, ("Xong, có cảnh báo" if log.get("canh_bao") else "Xong") + f" – {can} ô cần xem")
+        except (Dung, KeyboardInterrupt):
+            bao("    Đã dừng theo yêu cầu. Hợp đồng này chưa xong; lần chạy sau sẽ làm tiếp.")
+            logs.append(dict(file=f.name, ket_qua="Dừng giữa chừng"))
+            if tien_do:
+                tien_do(i - 1, "Đã dừng")
             break
         except Exception as e:
-            msg = f"LỖI: {e.__class__.__name__}: {e}"
+            msg = f"LỖI: {e}" if isinstance(e, RuntimeError) else f"LỖI: {e.__class__.__name__}: {e}"
             if llm is not None and isinstance(e, (urllib.error.URLError, TimeoutError, ConnectionError)):
                 msg += " (máy AI không trả lời – kiểm tra máy AI rồi chạy lại; hợp đồng đã xong sẽ không hỏi lại)"
-            print("    " + msg)
+            bao("    " + msg)
             logs.append(dict(file=f.name, ket_qua=msg))
+            if tien_do:
+                tien_do(i - 1, "Lỗi")
     out = out_dir / f"TONG_HOP_{dt.datetime.now():%Y%m%d_%H%M%S}.xlsx"
     ghi_tong_hop(out, ket_qua, logs, cfg, llm is not None)
-    loi = sum(1 for lg in logs if lg["ket_qua"] != "OK")
-    print(f"\nXong {len(ket_qua)}/{len(files)} hợp đồng" + (f", {loi} lỗi (xem sheet Nhat ky)" if loi else "")
-          + f".\nTổng hợp: {out}")
+    loi = sum(1 for lg in logs if not lg["ket_qua"].startswith("OK"))
+    bao(f"\nXong {len(ket_qua)}/{len(files)} hợp đồng" + (f", {loi} lỗi (xem sheet Nhat ky)" if loi else "")
+        + f".\nTổng hợp: {out}")
     return out
 
 
@@ -456,7 +545,10 @@ def main():
         cfg = ghi_cau_hinh(a.may_ai, a.model, None if a.an_danh is None else a.an_danh == "co")
         sys.exit(0 if kiem_tra(cfg) else 1)
     else:
-        chay(a.nguon, a.out, a.lam_lai, a.khong_ai)
+        try:
+            chay(a.nguon, a.out, a.lam_lai, a.khong_ai)
+        except LoiChay as e:
+            sys.exit(f"Dừng: {e}")
 
 
 if __name__ == "__main__":

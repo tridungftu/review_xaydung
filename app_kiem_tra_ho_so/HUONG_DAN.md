@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.4, ngày 05/10/2026 (trích tham số hàng loạt qua máy Local AI trong mạng LAN: `trich_lo_hop_dong.py`, mục 8) |
+| Phiên bản | 2.5, ngày 05/10/2026 (một cửa sổ trích tham số bằng máy Local AI trong mạng LAN, hỏi AI theo từng nhóm tham số: `giao_dien_trich_hd.py`, `trich_lo_hop_dong.py`, mục 8) |
 | Áp dụng cho | Hợp đồng thi công xây dựng, cung cấp vật tư thiết bị, EPC; mọi mẫu hồ sơ thanh toán Excel |
 | Thay đổi so với 1.x | Lấy **master file hợp đồng** làm gốc; bỏ bước tính lại bảng tổng hợp; các chi tiết riêng của từng hợp đồng để trong tài liệu nội bộ |
 
@@ -14,8 +14,8 @@
 | `csdl_hop_dong.py` | **Cơ sở dữ liệu** (file `co_so_du_lieu/hop_dong.db`): nạp master, nạp phụ lục, BOQ hiệu lực, nạp đợt đã duyệt, kiểm tra đợt mới, xuất Excel |
 | `toan_ven.py` | **Module 2 – Lớp 1: tính toàn vẹn file** hồ sơ thanh toán, mọi mẫu Excel (mục 11) |
 | `trich_lo_hop_dong.py` | Trích 36 tham số cho **cả lô hợp đồng** nhờ máy Local AI trong mạng LAN; gộp quy tắc + AI, ra master từng HĐ và file tổng hợp (mục 8) |
-| `cau_hinh_may_ai_ui.py`, `may_ai.py` | Cửa sổ nhập / tự dò IP máy Local AI trong mạng LAN, kiểm tra kết nối, chọn model (mở bằng `14_cau_hinh_may_AI.bat`) |
-| `0_…`, `5_…` – `9_…`, `13_…` – `15_….bat` | Chạy một nút: nạp master, phụ lục, kiểm tra đợt, xuất CSDL; 13: kiểm tra tính toàn vẹn file; 14: cấu hình máy AI; 15: trích hàng loạt |
+| `giao_dien_trich_hd.py`, `may_ai.py` | **Một cửa sổ** (mở bằng `5_trich_hop_dong_AI.bat`): tab *Trích hợp đồng* và tab *Máy AI* (nhập / tự dò IP máy AI, kiểm tra, chọn model) |
+| `0_…`, `5_…` – `9_…`, `13_….bat` | Chạy một nút: nạp master; 5: cửa sổ trích hợp đồng bằng Local AI; phụ lục, kiểm tra đợt, xuất CSDL; 13: kiểm tra tính toàn vẹn file |
 | `hardcode_audit.py` | Phân rã công thức và quét số nhập tay trong file hồ sơ (đào sâu khi cần, mục 4 bước B3) |
 | `app_kiem_tra_ho_so/` | App chạy trên máy: kiểm tra đủ hồ sơ, hỏi đáp, gọi các công cụ trên |
 
@@ -353,7 +353,7 @@ python master_hd.py doi-chieu master_0101.xlsx "HSTT dot 3.xlsx" --out doi_chieu
 python hardcode_audit.py "HSTT dot 3.xlsx" ket_qua.xlsx
 
 # 4b. Trích một hợp đồng bằng AI (máy Local AI trong LAN, địa chỉ trong cau_hinh_may_ai.json) và so với quy tắc
-python master_hd.py ai-trich "HĐ 0101.doc" --an-danh                          # 5_trich_hop_dong_AI.bat
+python master_hd.py ai-trich "HĐ 0101.doc" --an-danh                          # một HĐ, hỏi 36 tham số một lần
 
 # 4c. Chấm kết quả trích xuất với đáp án (.tsv): hợp đồng -> chấm quy tắc; file .tsv của AI -> chấm AI
 python master_hd.py cham DAP_AN_tai-lieu-001.tsv tai-lieu-001.docx
@@ -384,10 +384,10 @@ python csdl_hop_dong.py xuat-excel [0101] [--ngay 30/09/2026]     # 9_xuat_CSDL_
 python toan_ven.py "HSTT dot 3.xlsx" [--o "2. TH.!D38"] [--out ket_qua.xlsx]
 ```
 
-**Trích tham số hàng loạt qua máy Local AI trong mạng LAN** (`14_cau_hinh_may_AI.bat`, `15_trich_lo_hop_dong.bat`):
+**Trích tham số bằng máy Local AI trong mạng LAN** – dùng hằng ngày: nhấp đúp `5_trich_hop_dong_AI.bat` (hoặc kéo thả hợp đồng vào file này) để mở cửa sổ; tab *Máy AI* để nhập / tự tìm IP máy AI. Các lệnh tương đương:
 
 ```bash
-python cau_hinh_may_ai_ui.py                                                       # cửa sổ cấu hình (14_cau_hinh_may_AI.bat)
+python giao_dien_trich_hd.py [file hoặc thư mục …]                                  # cửa sổ (5_trich_hop_dong_AI.bat)
 python trich_lo_hop_dong.py cau-hinh --may-ai 192.168.1.50 [--model qwen3:8b]      # cách gõ lệnh, cùng tác dụng
 python trich_lo_hop_dong.py kiem-tra
 python trich_lo_hop_dong.py chay hop_dong_can_trich [--lam-lai] [--khong-ai]
@@ -400,9 +400,11 @@ python trich_lo_hop_dong.py chay hop_dong_can_trich [--lam-lai] [--khong-ai]
 
 Cài trên máy AI (cmd quyền Administrator): `setx OLLAMA_HOST "0.0.0.0:11434" /M`, rồi `netsh advfirewall firewall add rule name="Ollama - chi may ho so" dir=in action=allow protocol=TCP localport=11434 remoteip=<IP máy lưu hồ sơ>`; thoát và mở lại Ollama. Nên đặt IP cố định cho cả hai máy.
 
+Hỏi AI **theo từng nhóm tham số** (8 nhóm: thông tin chung, giá HĐ, tạm ứng, thanh toán đợt, quyết toán – bảo hành, điều chỉnh – phát sinh, tiến độ – phạt, hồ sơ): mỗi lần trả lời ngắn; nhóm lỗi thì tự hỏi lại, vẫn lỗi thì bỏ qua nhóm đó (ghi rõ lý do máy AI báo vào sheet `Nhat ky`) và các nhóm khác vẫn chạy. Hợp đồng dài hơn sức đọc của model thì cảnh báo. Nhận cả tiêu đề "ĐIỀU 1", "Điều II".
+
 Gộp kết quả: quy tắc có giá trị thì giữ, AI để đối chứng (khác thì **Lệch**, tô đỏ); quy tắc không thấy thì lấy giá trị AI nếu trích dẫn của AI tìm lại được trong hợp đồng (**Chỉ AI thấy**, tô vàng), không tìm lại được thì bỏ (**AI bịa trích dẫn**, tô đỏ). Mọi giá trị ở trạng thái "Chưa xác nhận".
 
-Kết quả ở `ket_qua_AI\trich_lo\`: `master_<HĐ>.xlsx` (xác nhận rồi nạp CSDL bằng `0_nap_master_vao_CSDL.bat`), `so_sanh_AI_<HĐ>.xlsx`, `TONG_HOP_<ngày giờ>.xlsx` (sheet `Tong hop` mỗi HĐ một dòng × 36 tham số, `Can xac nhan`, `Nhat ky`). Câu trả lời gốc của AI lưu ở `_ai_json\`; chạy lại không hỏi lại AI các hợp đồng đã có (trừ khi `--lam-lai`). Máy AI tắt giữa chừng: hợp đồng lỗi ghi vào nhật ký, chạy lại để làm tiếp. Máy AI đổi IP (đổi mạng): khi chạy, công cụ tự dò trong mạng /24 của máy này; thấy đúng một máy có model đang dùng thì tự cập nhật cấu hình và chạy tiếp, nếu không thì mở `14_cau_hinh_may_AI.bat` để nhập hoặc tự tìm IP.
+Kết quả ở `ket_qua_AI\trich_lo\`: `master_<HĐ>.xlsx` (xác nhận rồi nạp CSDL bằng `0_nap_master_vao_CSDL.bat`), `so_sanh_AI_<HĐ>.xlsx`, `TONG_HOP_<ngày giờ>.xlsx` (sheet `Tong hop` mỗi HĐ một dòng × 36 tham số, `Can xac nhan`, `Nhat ky`). Câu trả lời gốc của AI lưu ở `_ai_json\`; chạy lại không hỏi lại AI các hợp đồng đã có (trừ khi `--lam-lai`). Máy AI tắt giữa chừng: hợp đồng lỗi ghi vào nhật ký, chạy lại để làm tiếp. Máy AI đổi IP (đổi mạng): khi chạy, công cụ tự dò trong mạng /24 của máy này; thấy đúng một máy có model đang dùng thì tự cập nhật cấu hình và chạy tiếp, nếu không thì mở tab *Máy AI* để nhập hoặc tự tìm IP.
 
 Kết quả `kiem-dot` gồm các sheet:
 - `Tong hop`: bước 1 đến 3, Σ KL kỳ này × đơn giá, lũy kế kỳ trước, **giá trị tạm chưa thanh toán**.

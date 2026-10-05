@@ -16,7 +16,7 @@ Lệnh:
     python master_hd.py doi-chieu <master.xlsx> <ho_so_thanh_toan_dot_moi.xlsx> [--out ket_qua.xlsx]
     python master_hd.py ai-trich <hop_dong> [--an-danh] [--model qwen3.6:35b] [--host http://<IP máy AI>:11434]
 Tuỳ chọn: --ai (nhờ model AI trích các điều khoản quy tắc không bắt được)
-Địa chỉ máy AI và model mặc định lấy từ cau_hinh_may_ai.json (tạo bằng 14_cau_hinh_may_AI.bat).
+Địa chỉ máy AI và model mặc định lấy từ cau_hinh_may_ai.json (sửa ở tab "Máy AI" của cửa sổ 5_trich_hop_dong_AI.bat).
 
 Chỉ đọc file hồ sơ, không sửa. Mọi giá trị trích tự động có trạng thái "Chưa xác nhận"
 kèm trích dẫn nguyên văn, người review phải xác nhận trước khi dùng.
@@ -140,7 +140,7 @@ def doc_hop_dong(path):
         ln = nfc(ln).strip()
         if not ln or re.search(r"\t\d+$", ln):  # dòng mục lục
             continue
-        m = re.match(r"^Điều\s+(\d+)\s*[\.:]?\s*(.*)", ln)
+        m = re.match(r"^Điều\s+(\d+|[IVXLC]+)\b\s*[\.:]?\s*(.*)", ln, re.I)  # cả "ĐIỀU 1", "Điều II"
         if m:
             dieu = f"Điều {m.group(1)}. {m.group(2)[:60]}".strip()
         out.append((dieu, re.sub(r"\s+", " ", ln)))
@@ -445,15 +445,24 @@ class LocalLLM:
             req = urllib.request.Request(url, data=json.dumps(b).encode(), headers={"Content-Type": "application/json"})
             with urllib.request.urlopen(req, timeout=self.timeout) as r:
                 return json.loads(r.read())
+        def loi(e):
+            try:
+                chi_tiet = e.read().decode("utf-8", "replace")[:300]
+            except Exception:
+                chi_tiet = ""
+            return RuntimeError(f"Máy AI báo lỗi {e.code}: {chi_tiet or e.reason}")
         try:
             res = goi(body)
         except urllib.request.HTTPError as e:
             # model không có chế độ suy luận (gemma3, llama...) báo lỗi khi gửi "think" -> gửi lại không có "think"
             if self.api == "ollama" and "think" in body and e.code in (400, 500):
                 body.pop("think")
-                res = goi(body)
+                try:
+                    res = goi(body)
+                except urllib.request.HTTPError as e2:
+                    raise loi(e2) from None
             else:
-                raise
+                raise loi(e) from None
         if self.api == "ollama":
             content = res["message"]["content"]
             self.stats = dict(token_vao=res.get("prompt_eval_count"), token_ra=res.get("eval_count"))
@@ -1200,7 +1209,7 @@ def main():
                        num_ctx=args.num_ctx or (65536 if args.ca_hop_dong else 32768))
         if not llm.ok():
             sys.exit(f"Không kết nối được máy AI tại {args.host}. Kiểm tra máy AI đang bật và Ollama đang chạy; "
-                     "chạy 14_cau_hinh_may_AI.bat để kiểm tra kết nối.")
+                     "mở 5_trich_hop_dong_AI.bat, tab Máy AI để kiểm tra kết nối.")
         print(f"Gửi {len(text):,} ký tự tới {args.model} …")
         params = [(r["ma"], r["nhom"], r["ten"], r["don_vi"]) for r in rows]
         try:

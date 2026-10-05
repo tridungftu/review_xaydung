@@ -11,15 +11,17 @@ Phương pháp đầy đủ: [`quy-trinh-review-ttkl.md`](quy-trinh-review-ttkl.
 | `master_hd.py` | Trích 36 tham số hợp đồng (TC-01 … TT-62) bằng quy tắc, có trích dẫn nguyên văn; tuỳ chọn nhờ local AI (Ollama); chấm điểm với đáp án |
 | `csdl_hop_dong.py` | Cơ sở dữ liệu SQLite hợp đồng – phụ lục – BOQ: nạp phụ lục bằng phiếu Excel, BOQ hiệu lực theo ngày nghiệm thu, kiểm tra hồ sơ đợt mới, xuất Excel |
 | `toan_ven.py` | Module 2 – Lớp 1: kiểm tra tính toàn vẹn file hồ sơ thanh toán (mọi mẫu Excel): công thức lệch mẫu, số gõ tay giữa cột công thức, liên kết lệch dòng, sheet ẩn, file ngoài, cây truy vết số đề nghị theo 7 nhóm dữ liệu gốc, nguồn KL từng hạng mục |
+| `trich_lo_hop_dong.py` | Trích tham số cho cả lô hợp đồng nhờ máy Local AI trong mạng LAN; gộp quy tắc + AI, ra master từng HĐ và file tổng hợp |
+| `cau_hinh_may_ai_ui.py`, `may_ai.py` | Cửa sổ nhập / tự dò IP máy Local AI trong mạng LAN (mở bằng `14_cau_hinh_may_AI.bat`) |
 | `hardcode_audit.py` | Phân rã công thức, tìm số nhập tay trong file hồ sơ |
 | `app_kiem_tra_ho_so/` | App Streamlit chạy trên máy: kiểm tra đủ hồ sơ, hỏi đáp, gọi các công cụ trên |
-| `0_…` – `9_….bat` | Chạy một nút trên Windows (kéo thả file) |
+| `0_…` – `15_….bat` | Chạy một nút trên Windows (kéo thả file); `14_` cấu hình máy AI, `15_` trích hàng loạt |
 | `cau_lenh_local_ai_trich_hop_dong.md` | Câu lệnh cho local AI trích hợp đồng |
 
 ## Cài đặt
 
 ```bash
-pip install openpyxl python-docx pdfplumber
+pip install openpyxl python-docx pdfplumber pywin32
 ```
 
 File `.doc` cần LibreOffice hoặc MS Word để chuyển sang `.docx`. Cơ sở dữ liệu dùng `sqlite3` có sẵn trong Python.
@@ -33,5 +35,5 @@ Kho này **chỉ chứa mã nguồn và tài liệu chung**. File `.gitignore` l
 - cơ sở dữ liệu (`co_so_du_lieu/`);
 - kết quả chạy;
 - ví dụ áp dụng trên hợp đồng thật;
-- thông tin máy chủ AI;
+- thông tin máy chủ AI (`cau_hinh_may_ai.json`), thư mục `hop_dong_can_trich/`, `ket_qua_AI/`;
 - thư mục `_de_sau/`, `vu_viec/` và cấu hình riêng (`cau_hinh_review.json`).

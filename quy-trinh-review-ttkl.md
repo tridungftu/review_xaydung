@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Phiên bản | 2.3, ngày 04/10/2026 (Module 2 – Lớp 1 tính toàn vẹn file: `toan_ven.py`, mục 11; vai trò Local AI, mục 5) |
+| Phiên bản | 2.4, ngày 05/10/2026 (trích tham số hàng loạt qua máy Local AI trong mạng LAN: `trich_lo_hop_dong.py`, mục 8) |
 | Áp dụng cho | Hợp đồng thi công xây dựng, cung cấp vật tư thiết bị, EPC; mọi mẫu hồ sơ thanh toán Excel |
 | Thay đổi so với 1.x | Lấy **master file hợp đồng** làm gốc; bỏ bước tính lại bảng tổng hợp; các chi tiết riêng của từng hợp đồng để trong tài liệu nội bộ |
 
@@ -13,7 +13,9 @@
 | `master_hd.py` | Trích hợp đồng + BOQ ra master file Excel (bước nhập ban đầu, để người review xác nhận) |
 | `csdl_hop_dong.py` | **Cơ sở dữ liệu** (file `co_so_du_lieu/hop_dong.db`): nạp master, nạp phụ lục, BOQ hiệu lực, nạp đợt đã duyệt, kiểm tra đợt mới, xuất Excel |
 | `toan_ven.py` | **Module 2 – Lớp 1: tính toàn vẹn file** hồ sơ thanh toán, mọi mẫu Excel (mục 11) |
-| `0_…`, `6_…` – `9_…`, `13_….bat` | Chạy một nút: nạp master, phụ lục, kiểm tra đợt, xuất CSDL; 13: kiểm tra tính toàn vẹn file |
+| `trich_lo_hop_dong.py` | Trích 36 tham số cho **cả lô hợp đồng** nhờ máy Local AI trong mạng LAN; gộp quy tắc + AI, ra master từng HĐ và file tổng hợp (mục 8) |
+| `cau_hinh_may_ai_ui.py`, `may_ai.py` | Cửa sổ nhập / tự dò IP máy Local AI trong mạng LAN, kiểm tra kết nối, chọn model (mở bằng `14_cau_hinh_may_AI.bat`) |
+| `0_…`, `5_…` – `9_…`, `13_…` – `15_….bat` | Chạy một nút: nạp master, phụ lục, kiểm tra đợt, xuất CSDL; 13: kiểm tra tính toàn vẹn file; 14: cấu hình máy AI; 15: trích hàng loạt |
 | `hardcode_audit.py` | Phân rã công thức và quét số nhập tay trong file hồ sơ (đào sâu khi cần, mục 4 bước B3) |
 | `app_kiem_tra_ho_so/` | App chạy trên máy: kiểm tra đủ hồ sơ, hỏi đáp, gọi các công cụ trên |
 
@@ -293,7 +295,7 @@ Chạy khi B2 có lệch mà không giải thích được, hoặc khi file có 
 | B6 Tổng hợp | Phân loại (1)(2)(3), trọng yếu, tổng ảnh hưởng | Nháp lời văn phát hiện, nháp thư request | Chốt phát hiện, số kiến nghị |
 
 **Kiểm soát khi dùng AI** (đã lập trình trong `review_ttkl/ai.py`):
-1. Ẩn danh tên các bên, MST, số tài khoản, điện thoại trước khi gửi; chỉ gửi đoạn cần đọc; qua tunnel tới pod riêng.
+1. Ẩn danh tên các bên, MST, số tài khoản, điện thoại trước khi gửi; chỉ gửi đoạn cần đọc, không gửi file; chỉ gửi tới máy Local AI trong mạng LAN (tường lửa máy AI chỉ mở cổng cho máy lưu hồ sơ).
 2. Mỗi dòng AI trích phải có trích dẫn nguyên văn; Python tìm lại trong văn bản, không thấy thì gắn "KHÔNG - đọc lại chứng từ".
 3. Kết quả AI ở trạng thái "Chưa xác nhận"; chỉ dòng người review "Đã xác nhận" mới là căn cứ (dòng chưa xác nhận chỉ để gợi ý, tô vàng).
 4. Lời văn AI soạn: có con số không nằm trong dữ liệu đưa vào thì bỏ, dùng mô tả của Python.
@@ -350,8 +352,8 @@ python master_hd.py doi-chieu master_0101.xlsx "HSTT dot 3.xlsx" --out doi_chieu
 # 4. Khi cần đào sâu: phân rã công thức, quét số nhập tay (mục B3)
 python hardcode_audit.py "HSTT dot 3.xlsx" ket_qua.xlsx
 
-# 4b. Thử AI: trích hợp đồng bằng model trên RunPod (qua tunnel localhost:11434) và so với quy tắc
-python master_hd.py ai-trich "HĐ 0101.doc" --an-danh --model qwen3.6:35b
+# 4b. Trích một hợp đồng bằng AI (máy Local AI trong LAN, địa chỉ trong cau_hinh_may_ai.json) và so với quy tắc
+python master_hd.py ai-trich "HĐ 0101.doc" --an-danh                          # 5_trich_hop_dong_AI.bat
 
 # 4c. Chấm kết quả trích xuất với đáp án (.tsv): hợp đồng -> chấm quy tắc; file .tsv của AI -> chấm AI
 python master_hd.py cham DAP_AN_tai-lieu-001.tsv tai-lieu-001.docx
@@ -381,6 +383,26 @@ python csdl_hop_dong.py xuat-excel [0101] [--ngay 30/09/2026]     # 9_xuat_CSDL_
 ```bash
 python toan_ven.py "HSTT dot 3.xlsx" [--o "2. TH.!D38"] [--out ket_qua.xlsx]
 ```
+
+**Trích tham số hàng loạt qua máy Local AI trong mạng LAN** (`14_cau_hinh_may_AI.bat`, `15_trich_lo_hop_dong.bat`):
+
+```bash
+python cau_hinh_may_ai_ui.py                                                       # cửa sổ cấu hình (14_cau_hinh_may_AI.bat)
+python trich_lo_hop_dong.py cau-hinh --may-ai 192.168.1.50 [--model qwen3:8b]      # cách gõ lệnh, cùng tác dụng
+python trich_lo_hop_dong.py kiem-tra
+python trich_lo_hop_dong.py chay hop_dong_can_trich [--lam-lai] [--khong-ai]
+```
+
+| Máy | Việc | Cổng |
+|---|---|---|
+| Máy lưu hồ sơ | Đọc hợp đồng, trích bằng quy tắc, cắt các Điều liên quan, ẩn danh, gửi đoạn văn; kiểm trích dẫn AI; gộp; ghi file | – |
+| Máy Local AI | Ollama: đọc đoạn văn, trả JSON 36 tham số; không lưu gì | 11434, tường lửa chỉ cho máy lưu hồ sơ |
+
+Cài trên máy AI (cmd quyền Administrator): `setx OLLAMA_HOST "0.0.0.0:11434" /M`, rồi `netsh advfirewall firewall add rule name="Ollama - chi may ho so" dir=in action=allow protocol=TCP localport=11434 remoteip=<IP máy lưu hồ sơ>`; thoát và mở lại Ollama. Nên đặt IP cố định cho cả hai máy.
+
+Gộp kết quả: quy tắc có giá trị thì giữ, AI để đối chứng (khác thì **Lệch**, tô đỏ); quy tắc không thấy thì lấy giá trị AI nếu trích dẫn của AI tìm lại được trong hợp đồng (**Chỉ AI thấy**, tô vàng), không tìm lại được thì bỏ (**AI bịa trích dẫn**, tô đỏ). Mọi giá trị ở trạng thái "Chưa xác nhận".
+
+Kết quả ở `ket_qua_AI\trich_lo\`: `master_<HĐ>.xlsx` (xác nhận rồi nạp CSDL bằng `0_nap_master_vao_CSDL.bat`), `so_sanh_AI_<HĐ>.xlsx`, `TONG_HOP_<ngày giờ>.xlsx` (sheet `Tong hop` mỗi HĐ một dòng × 36 tham số, `Can xac nhan`, `Nhat ky`). Câu trả lời gốc của AI lưu ở `_ai_json\`; chạy lại không hỏi lại AI các hợp đồng đã có (trừ khi `--lam-lai`). Máy AI tắt giữa chừng: hợp đồng lỗi ghi vào nhật ký, chạy lại để làm tiếp. Máy AI đổi IP (đổi mạng): khi chạy, công cụ tự dò trong mạng /24 của máy này; thấy đúng một máy có model đang dùng thì tự cập nhật cấu hình và chạy tiếp, nếu không thì mở `14_cau_hinh_may_AI.bat` để nhập hoặc tự tìm IP.
 
 Kết quả `kiem-dot` gồm các sheet:
 - `Tong hop`: bước 1 đến 3, Σ KL kỳ này × đơn giá, lũy kế kỳ trước, **giá trị tạm chưa thanh toán**.

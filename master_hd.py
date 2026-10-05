@@ -14,8 +14,9 @@ Lệnh:
     python master_hd.py tao      <hop_dong.doc/.docx/.pdf> [--boq <file.xlsx>] [--out master.xlsx]
     python master_hd.py nap-dot  <master.xlsx> <ho_so_thanh_toan_dot_truoc.xlsx>
     python master_hd.py doi-chieu <master.xlsx> <ho_so_thanh_toan_dot_moi.xlsx> [--out ket_qua.xlsx]
-    python master_hd.py ai-trich <hop_dong> [--an-danh] [--model qwen3.6:35b] [--host http://localhost:11434]
+    python master_hd.py ai-trich <hop_dong> [--an-danh] [--model qwen3.6:35b] [--host http://<IP máy AI>:11434]
 Tuỳ chọn: --ai (nhờ model AI trích các điều khoản quy tắc không bắt được)
+Địa chỉ máy AI và model mặc định lấy từ cau_hinh_may_ai.json (tạo bằng 14_cau_hinh_may_AI.bat).
 
 Chỉ đọc file hồ sơ, không sửa. Mọi giá trị trích tự động có trạng thái "Chưa xác nhận"
 kèm trích dẫn nguyên văn, người review phải xác nhận trước khi dùng.
@@ -384,12 +385,35 @@ def kiem_tra_nhat_quan(paras, by):
     return out
 
 
+# ============================================================== cấu hình máy AI (dùng chung mọi công cụ)
+_CH = Path(__file__).resolve().parent
+# app_kiem_tra_ho_so/ dùng chung file cấu hình ở thư mục dự án (thư mục cha)
+CAU_HINH_AI = next((d / "cau_hinh_may_ai.json" for d in (_CH, _CH.parent) if (d / "cau_hinh_may_ai.json").exists()),
+                   _CH / "cau_hinh_may_ai.json")
+MAC_DINH_AI = {"may_ai": "http://localhost:11434", "model": "qwen3:8b", "api": "ollama",
+               "an_danh": True, "gui_ca_hop_dong": False, "timeout_giay": 1800}
+
+
+def cau_hinh_ai():
+    """Đọc cau_hinh_may_ai.json (không đẩy lên Git). Thiếu file thì dùng mặc định localhost."""
+    cfg = dict(MAC_DINH_AI)
+    if CAU_HINH_AI.exists():
+        try:
+            cfg.update(json.loads(CAU_HINH_AI.read_text(encoding="utf-8-sig")))
+        except Exception as e:
+            print(f"Không đọc được {CAU_HINH_AI.name} ({e}); dùng cấu hình mặc định.")
+    cfg["may_ai"] = str(cfg["may_ai"]).rstrip("/")
+    if not cfg["may_ai"].startswith("http"):
+        cfg["may_ai"] = "http://" + cfg["may_ai"]
+    return cfg
+
+
 class LocalLLM:
     """
     Gọi model AI qua API. Hai kiểu:
       api="ollama": POST {host}/api/chat           (Ollama gốc; tắt 'think' để model không suy luận dài)
       api="openai": POST {host}/v1/chat/completions (vLLM, LM Studio, Ollama chế độ OpenAI)
-    Với RunPod qua SSH tunnel: host = http://localhost:11434 (mở 2_mo_giao_dien.bat trước).
+    Máy AI trong mạng LAN: host = http://<IP máy AI>:11434 (đặt trong cau_hinh_may_ai.json).
     """
 
     def __init__(self, model="qwen3.6:35b", host="http://localhost:11434", api="ollama", num_ctx=32768, timeout=900):
@@ -417,9 +441,19 @@ class LocalLLM:
             body = {"model": self.model, "temperature": 0,
                     "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
             url = self.host + "/v1/chat/completions"
-        req = urllib.request.Request(url, data=json.dumps(body).encode(), headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req, timeout=self.timeout) as r:
-            res = json.loads(r.read())
+        def goi(b):
+            req = urllib.request.Request(url, data=json.dumps(b).encode(), headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=self.timeout) as r:
+                return json.loads(r.read())
+        try:
+            res = goi(body)
+        except urllib.request.HTTPError as e:
+            # model không có chế độ suy luận (gemma3, llama...) báo lỗi khi gửi "think" -> gửi lại không có "think"
+            if self.api == "ollama" and "think" in body and e.code in (400, 500):
+                body.pop("think")
+                res = goi(body)
+            else:
+                raise
         if self.api == "ollama":
             content = res["message"]["content"]
             self.stats = dict(token_vao=res.get("prompt_eval_count"), token_ra=res.get("eval_count"))
@@ -1092,11 +1126,11 @@ def main():
     ap = argparse.ArgumentParser(description="Master file hợp đồng")
     sub = ap.add_subparsers(dest="lenh", required=True)
     a = sub.add_parser("tao"); a.add_argument("hop_dong"); a.add_argument("--boq"); a.add_argument("--out")
-    a.add_argument("--ai", action="store_true"); a.add_argument("--model", default="qwen3.6:35b")
-    a.add_argument("--host", default="http://localhost:11434"); a.add_argument("--api", default="ollama", choices=["ollama", "openai"])
+    a.add_argument("--ai", action="store_true"); a.add_argument("--model")
+    a.add_argument("--host"); a.add_argument("--api", choices=["ollama", "openai"])
     d = sub.add_parser("ai-trich", help="Trích toàn bộ tham số bằng AI và so với quy tắc")
-    d.add_argument("hop_dong"); d.add_argument("--out"); d.add_argument("--model", default="qwen3.6:35b")
-    d.add_argument("--host", default="http://localhost:11434"); d.add_argument("--api", default="ollama", choices=["ollama", "openai"])
+    d.add_argument("hop_dong"); d.add_argument("--out"); d.add_argument("--model")
+    d.add_argument("--host"); d.add_argument("--api", choices=["ollama", "openai"])
     d.add_argument("--an-danh", action="store_true", help="Che tên các bên, tên người, MST, số tài khoản trước khi gửi")
     d.add_argument("--ca-hop-dong", action="store_true", help="Gửi cả hợp đồng thay vì chỉ các Điều liên quan thanh toán")
     d.add_argument("--num-ctx", type=int, default=None, help="Ngữ cảnh model; mặc định 32768, hoặc 65536 khi --ca-hop-dong")
@@ -1106,6 +1140,11 @@ def main():
     e.add_argument("dap_an"); e.add_argument("ket_qua", help="Hợp đồng (.doc/.docx/.pdf -> chấm quy tắc) hoặc file .tsv kết quả AI")
     e.add_argument("--out")
     args = ap.parse_args()
+    if args.lenh in ("tao", "ai-trich"):
+        cfg = cau_hinh_ai()
+        args.model = args.model or cfg["model"]
+        args.host = args.host or cfg["may_ai"]
+        args.api = args.api or cfg["api"]
     if args.lenh == "tao":
         paras = doc_hop_dong(args.hop_dong)
         rows = trich_xuat(paras, LocalLLM(args.model, args.host, args.api) if args.ai else None)
@@ -1160,7 +1199,8 @@ def main():
         llm = LocalLLM(args.model, args.host, args.api,
                        num_ctx=args.num_ctx or (65536 if args.ca_hop_dong else 32768))
         if not llm.ok():
-            sys.exit(f"Không kết nối được máy chủ AI tại {args.host}. Với RunPod: mở 2_mo_giao_dien.bat trước.")
+            sys.exit(f"Không kết nối được máy AI tại {args.host}. Kiểm tra máy AI đang bật và Ollama đang chạy; "
+                     "chạy 14_cau_hinh_may_AI.bat để kiểm tra kết nối.")
         print(f"Gửi {len(text):,} ký tự tới {args.model} …")
         params = [(r["ma"], r["nhom"], r["ten"], r["don_vi"]) for r in rows]
         try:
